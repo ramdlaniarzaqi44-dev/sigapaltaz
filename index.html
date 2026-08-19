@@ -290,7 +290,7 @@
                             </div>
                         </div>
 
-                        <!-- Piket Info & Tombol Simpan (MUNCUL BARENGAN KELAS) -->
+                        <!-- Piket Info & Tombol Simpan -->
                         <div id="piket-and-save-container" class="hidden">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-indigo-50 p-4 rounded-lg border border-indigo-100 mb-6">
                                 <div>
@@ -396,10 +396,16 @@
                         </div>
 
                         <!-- Viewer Jadwal Preview -->
-                        <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Pratinjau Jadwal Mengajar Server
-                        </h2>
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 mt-8 gap-4">
+                            <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Pratinjau Jadwal Mengajar Server
+                            </h2>
+                            <button id="delete-btn-container" onclick="deleteSelectedSchedules()" style="display: none;" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2 px-4 rounded-lg shadow-sm items-center gap-2 transition whitespace-nowrap">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                Hapus Terpilih
+                            </button>
+                        </div>
                         <div id="schedule-day-tabs" class="border-b border-gray-200 mb-4 flex overflow-x-auto custom-scrollbar pb-1"></div>
                         <div id="schedule-content" class="overflow-x-auto custom-scrollbar border rounded shadow-sm min-h-[200px]"></div>
                     </div>
@@ -520,7 +526,7 @@
     <div id="notification-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-opacity">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-11/12 md:w-sm text-center transform scale-100">
             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <h3 class="text-lg leading-6 font-bold text-gray-900 mb-2">Informasi</h3>
             <p id="notification-message" class="text-sm text-gray-600 mb-6 whitespace-pre-wrap leading-relaxed"></p>
@@ -573,6 +579,7 @@
         let currentReportData = null; 
         let isAppInitialized = false; 
         let attendanceChartInstance = null;
+        let isAdminUnlocked = false; // State untuk otorisasi fitur hapus data
         
         // Konstanta
         const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
@@ -611,6 +618,9 @@
                 document.getElementById('login-container').classList.add('hidden');
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('user-info').classList.add('hidden');
+                document.getElementById('import-panel').classList.add('hidden');
+                document.getElementById('delete-btn-container').style.display = 'none';
+                isAdminUnlocked = false;
                 isAppInitialized = false; 
                 showLoading(false);
             }
@@ -632,7 +642,10 @@
                 .finally(() => showLoading(false));
         }
 
-        function handleLogout() { auth.signOut(); }
+        function handleLogout() { 
+            isAdminUnlocked = false; 
+            auth.signOut(); 
+        }
 
         document.getElementById('login-btn').addEventListener('click', handleLogin);
         ['login-password', 'login-email'].forEach(id => {
@@ -726,6 +739,7 @@
                 schedulesData = {}; days.forEach(day => { schedulesData[day] = { Putra: [], Putri: [] }; });
                 snap.forEach(doc => {
                     const sch = doc.data();
+                    sch.id = doc.id; // Menyimpan ID dokumen untuk keperluan Hapus Data
                     if (schedulesData[sch.day] && schedulesData[sch.day][sch.category]) schedulesData[sch.day][sch.category].push(sch);
                 });
                 for (const day in schedulesData) {
@@ -953,7 +967,6 @@
 
             container.classList.remove('hidden');
 
-            // Ambil data jika sudah disave sebelumnya hari ini
             showLoading(true);
             let savedRecords = {};
             try {
@@ -1120,7 +1133,6 @@
                             text += `Nihil\n`;
                         }
                         
-                        // Icon Piket
                         let pktKelasIcon = data.piketKelas === 'Piket' ? 'Piket ✅' : (data.piketKelas === 'Tidak' ? 'Tidak ❌' : '-');
                         let pktSampahIcon = data.piketSampah === 'Piket' ? 'Piket ✅' : (data.piketSampah === 'Tidak' ? 'Tidak ❌' : '-');
 
@@ -1136,7 +1148,6 @@
                     let tData = tSnap.docs[0].data();
                     if (tData.records && tData.records.length > 0) {
                         let relevantTeachers = tData.records;
-                        // Filter guru berdasarkan Kategori Putra/Putri
                         if(schedulesData[dayName] && schedulesData[dayName][cat]) {
                             const catTeacherNames = schedulesData[dayName][cat].map(t => t.name);
                             relevantTeachers = tData.records.filter(r => catTeacherNames.includes(r.teacherName));
@@ -1147,18 +1158,72 @@
                         } else {
                             let idx = 1;
                             relevantTeachers.forEach(r => {
-                                let statuses = [];
-                                for(let i=1; i<=9; i++) { if (r[`jam${i}`] && r[`jam${i}`] !== '-') statuses.push(r[`jam${i}`]); }
-                                if(statuses.length === 0) return; // Skip guru yang tidak ada jadwal ngajar di kategori ini
+                                let tSch = null;
+                                if(schedulesData[dayName] && schedulesData[dayName][cat]) {
+                                    tSch = schedulesData[dayName][cat].find(t => t.name === r.teacherName);
+                                }
+
+                                let hoursInfo = [];
+                                for(let i=1; i<=9; i++) { 
+                                    if (r[`jam${i}`] && r[`jam${i}`] !== '-') {
+                                        let subj = (tSch && tSch[`jam${i}`] && tSch[`jam${i}`] !== '-') ? tSch[`jam${i}`] : 'Unknown';
+                                        hoursInfo.push({ jam: i, status: r[`jam${i}`], subject: subj });
+                                    } 
+                                }
                                 
-                                let finalStatus = 'Hadir';
-                                let icon = '✅';
+                                if(hoursInfo.length === 0 && (!r.morningHabit || r.morningHabit === '-')) return; 
                                 
-                                if (statuses.includes('Alpha')) { finalStatus = 'Alpha'; icon = '❌'; }
-                                else if (statuses.includes('Sakit')) { finalStatus = 'Sakit'; icon = '🏥'; }
-                                else if (statuses.some(s => s.includes('Izin'))) { finalStatus = 'Izin'; icon = '⚠️'; }
+                                let habitStr = '';
+                                if (r.morningHabit && r.morningHabit !== '-') {
+                                    let hIcon = '✅';
+                                    if (r.morningHabit === 'Telat') hIcon = '⏱️';
+                                    else if (r.morningHabit === 'Tidak Ikut') hIcon = '❌';
+                                    habitStr = `Pembiasaan ${hIcon}, `;
+                                }
                                 
-                                text += `${idx}. ${r.teacherName} - ${finalStatus} ${icon}\n`;
+                                let jamTeks = '';
+                                if (hoursInfo.length > 0) {
+                                    let groups = [];
+                                    let currentGroup = [ hoursInfo[0] ];
+                                    
+                                    for(let i=1; i<hoursInfo.length; i++) {
+                                        let prev = currentGroup[currentGroup.length - 1];
+                                        let curr = hoursInfo[i];
+                                        
+                                        if (curr.jam === prev.jam + 1 && curr.subject === prev.subject && curr.status === prev.status) {
+                                            currentGroup.push(curr);
+                                        } else {
+                                            groups.push(currentGroup);
+                                            currentGroup = [ curr ];
+                                        }
+                                    }
+                                    groups.push(currentGroup);
+                                    
+                                    let jamStrings = [];
+                                    groups.forEach(g => {
+                                        let start = g[0].jam;
+                                        let end = g[g.length - 1].jam;
+                                        let rangeStr = start === end ? `${start}` : `${start}-${end}`;
+                                        
+                                        let gStatus = g[0].status;
+                                        let icon = '✅';
+                                        let statText = '';
+                                        
+                                        if (gStatus === 'Alpha') { icon = '❌'; statText = ' Alpha'; }
+                                        else if (gStatus === 'Sakit') { icon = '🏥'; statText = ' Sakit'; }
+                                        else if (gStatus.includes('Izin')) { icon = '⚠️'; statText = ' Izin'; }
+                                        else if (gStatus === 'Telat') { icon = '⏱️'; statText = ' Telat'; }
+
+                                        jamStrings.push(`${rangeStr}${statText} ${icon}`);
+                                    });
+                                    
+                                    jamTeks = `Jam ` + jamStrings.join(', ');
+                                }
+                                
+                                let finalLine = `${idx}. ${r.teacherName} - ${habitStr}${jamTeks}`;
+                                if (finalLine.endsWith(', ')) finalLine = finalLine.slice(0, -2);
+                                
+                                text += `${finalLine}\n`;
                                 idx++;
                             });
                         }
@@ -1184,6 +1249,13 @@
         function populateScheduleView() {
             const tabs = document.getElementById("schedule-day-tabs"); const content = document.getElementById("schedule-content");
             tabs.innerHTML = ""; content.innerHTML = "";
+            
+            // Handle visibilitas tombol hapus
+            const btnContainer = document.getElementById("delete-btn-container");
+            if (btnContainer) {
+                btnContainer.style.display = isAdminUnlocked ? 'flex' : 'none';
+            }
+
             days.forEach((day, idx) => {
                 const btn = document.createElement("button"); btn.textContent = day; btn.className = `py-2.5 px-5 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${idx===0?'day-tab-active':'border-transparent text-gray-500 hover:text-gray-800'}`;
                 btn.onclick = () => { document.querySelectorAll("#schedule-day-tabs button").forEach(b => b.className="py-2.5 px-5 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800 whitespace-nowrap transition-colors"); btn.className = "py-2.5 px-5 text-sm font-bold border-b-2 day-tab-active whitespace-nowrap transition-colors"; document.querySelectorAll("#schedule-content > div").forEach(c => c.classList.add("hidden")); document.getElementById("v-day-"+day).classList.remove("hidden"); };
@@ -1196,17 +1268,77 @@
 
                 categories.forEach((cat, cIdx) => {
                     const tchs = schedulesData[day] && schedulesData[day][cat] ? schedulesData[day][cat] : [];
-                    html += `<div id="v-content-${day}-${cat}" class="${cIdx>0?'hidden':''}"><table class="min-w-max w-full bg-white text-sm"><thead class="bg-gray-50 border-y border-gray-200"><tr><th class="py-3 px-4 text-left font-bold text-gray-700 sticky left-0 bg-gray-50 border-r w-48">Nama Guru</th>`;
+                    html += `<div id="v-content-${day}-${cat}" class="${cIdx>0?'hidden':''}"><table class="min-w-max w-full bg-white text-sm">
+                    <thead class="bg-gray-50 border-y border-gray-200"><tr>`;
+                    
+                    if (isAdminUnlocked) {
+                        html += `<th class="py-3 px-3 w-12 min-w-[48px] max-w-[48px] text-center border-r sticky left-0 bg-gray-50 z-20"><input type="checkbox" onchange="toggleAllSchedules(this, '${day}', '${cat}')" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"></th>
+                        <th class="py-3 px-4 text-left font-bold text-gray-700 sticky left-[48px] bg-gray-50 border-r w-48 z-20">Nama Guru</th>`;
+                    } else {
+                        html += `<th class="py-3 px-4 text-left font-bold text-gray-700 sticky left-0 bg-gray-50 border-r w-48 z-10">Nama Guru</th>`;
+                    }
+
                     for(let i=1; i<=9; i++) html += `<th class="py-3 px-3 text-center font-bold text-gray-700 border-r w-28">Jam ${i}</th>`;
                     html += `</tr></thead><tbody class="divide-y divide-gray-100">`;
-                    if(tchs.length === 0) html += `<tr><td colspan="10" class="text-center py-8 text-gray-400 font-medium">Jadwal kosong. Upload Excel untuk mengisi.</td></tr>`;
-                    else { tchs.forEach(t => { html += `<tr class="hover:bg-gray-50"><td class="py-3 px-4 sticky left-0 bg-white border-r font-semibold text-gray-800">${t.name}</td>`; for(let i=1; i<=9; i++) html += `<td class="py-3 px-2 text-center border-r">${(t[`jam${i}`] && t[`jam${i}`]!=='-') ? `<span class="bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 text-xs font-bold block truncate">${t[`jam${i}`]}</span>` : `<span class="text-gray-300">-</span>`}</td>`; html += `</tr>`; }); }
+                    
+                    if(tchs.length === 0) {
+                        html += `<tr><td colspan="${isAdminUnlocked ? 11 : 10}" class="text-center py-8 text-gray-400 font-medium">Jadwal kosong. Upload Excel untuk mengisi.</td></tr>`;
+                    } else { 
+                        tchs.forEach(t => { 
+                            html += `<tr class="hover:bg-gray-50">`;
+                            if (isAdminUnlocked) {
+                                html += `<td class="py-3 px-3 text-center border-r bg-white sticky left-0 z-10"><input type="checkbox" value="${t.id}" class="sch-checkbox-${day}-${cat} w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"></td>
+                                <td class="py-3 px-4 sticky left-[48px] bg-white border-r font-semibold text-gray-800 z-10">${t.name}</td>`;
+                            } else {
+                                html += `<td class="py-3 px-4 sticky left-0 bg-white border-r font-semibold text-gray-800 z-10">${t.name}</td>`;
+                            }
+                            for(let i=1; i<=9; i++) html += `<td class="py-3 px-2 text-center border-r">${(t[`jam${i}`] && t[`jam${i}`]!=='-') ? `<span class="bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 text-xs font-bold block truncate">${t[`jam${i}`]}</span>` : `<span class="text-gray-300">-</span>`}</td>`; 
+                            html += `</tr>`; 
+                        }); 
+                    }
                     html += `</tbody></table></div>`;
                 });
                 div.innerHTML = html; content.appendChild(div);
             });
         }
         function switchCatView(day, cat) { categories.forEach(c => { document.getElementById(`v-content-${day}-${c}`).classList.add('hidden'); document.getElementById(`btn-cat-${day}-${c}`).className = "px-5 py-1.5 text-sm font-bold rounded-md shadow-sm transition-all text-gray-600 hover:bg-gray-200"; }); document.getElementById(`v-content-${day}-${cat}`).classList.remove('hidden'); document.getElementById(`btn-cat-${day}-${cat}`).className = "px-5 py-1.5 text-sm font-bold rounded-md shadow-sm transition-all bg-blue-600 text-white"; }
+
+        function toggleAllSchedules(source, day, cat) {
+            const checkboxes = document.querySelectorAll(`.sch-checkbox-${day}-${cat}`);
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        }
+
+        async function deleteSelectedSchedules() {
+            const checked = document.querySelectorAll('#schedule-content input[type="checkbox"]:checked');
+            const ids = [];
+            checked.forEach(cb => { if (cb.value && cb.value !== 'on') ids.push(cb.value); });
+
+            if (ids.length === 0) return showNotification("Pilih minimal satu data jadwal untuk dihapus!");
+            
+            if (!confirm(`Apakah Anda yakin ingin menghapus ${ids.length} data jadwal yang dipilih? Tindakan ini tidak dapat dibatalkan.`)) return;
+
+            showLoading(true);
+            try {
+                let batches = [];
+                let curBatch = db.batch();
+                let count = 0;
+                
+                ids.forEach(id => {
+                    curBatch.delete(db.collection('schedules').doc(id));
+                    count++;
+                    if(count === 490) { batches.push(curBatch); curBatch = db.batch(); count = 0; }
+                });
+                batches.push(curBatch);
+                for(let b of batches) await b.commit();
+                
+                showNotification(`${ids.length} data jadwal berhasil dihapus.`);
+                await fetchSchedules(); 
+            } catch (e) {
+                showNotification("Gagal menghapus data: " + e.message);
+            } finally {
+                showLoading(false);
+            }
+        }
 
         async function getReport() {
             const y = document.getElementById('report-year').value; const m = document.getElementById('report-month').value;
@@ -1328,7 +1460,20 @@
         function closeNotification() { document.getElementById('notification-modal').classList.add('hidden'); }
         function showPasswordModal(act) { document.getElementById('password-input').value = ''; document.getElementById('password-error').textContent = ''; document.getElementById('password-action').value = act; document.getElementById('password-modal').classList.remove('hidden'); }
         function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
-        function checkPassword() { if (document.getElementById('password-input').value === 'absisaltaz123') { closePasswordModal(); if(document.getElementById('password-action').value === 'import') document.getElementById('import-panel').classList.remove('hidden'); } else { document.getElementById('password-error').textContent = 'Password salah!'; } }
+        
+        function checkPassword() { 
+            if (document.getElementById('password-input').value === 'absisaltaz123') { 
+                closePasswordModal(); 
+                isAdminUnlocked = true; // State otorisasi berhasil
+                if(document.getElementById('password-action').value === 'import') {
+                    document.getElementById('import-panel').classList.remove('hidden'); 
+                    populateScheduleView(); // Render ulang tabel agar muncul checkbox
+                } 
+            } else { 
+                document.getElementById('password-error').textContent = 'Password salah!'; 
+            } 
+        }
+
         function showLoading(s) { document.getElementById('loading-overlay').classList.toggle('hidden', !s); }
         function showNotification(m) { document.getElementById('notification-message').textContent = m; document.getElementById('notification-modal').classList.remove('hidden'); }
     </script>
