@@ -30,7 +30,7 @@
         
         .header-gradient { background-image: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
         
-        /* Pewarnaan Status Absen Guru */
+        /* Pewarnaan Status Absen */
         .status-hadir { background-color: #dcfce7 !important; color: #166534; font-weight: 500;}
         .status-telat { background-color: #e0f2fe !important; color: #075985; font-weight: 500;}
         .status-sakit { background-color: #ffedd5 !important; color: #9a3412; font-weight: 500;}
@@ -181,11 +181,6 @@
                     <button onclick="switchTab('wa', this)" class="py-2 px-4 md:px-6 rounded-lg text-sm md:text-base font-semibold text-gray-600 hover:bg-blue-50 transition-all">Template WA</button>
                     <button onclick="switchTab('laporan', this)" class="py-2 px-4 md:px-6 rounded-lg text-sm md:text-base font-semibold text-gray-600 hover:bg-blue-50 transition-all">Laporan</button>
                     <button onclick="switchTab('grafik', this)" class="py-2 px-4 md:px-6 rounded-lg text-sm md:text-base font-semibold text-gray-600 hover:bg-blue-50 transition-all">Grafik Absen</button>
-                    <div class="w-px h-6 bg-gray-300 mx-2"></div>
-                    <a href="https://absis-psi.vercel.app/" target="_blank" class="py-2 px-4 rounded-lg text-sm md:text-base font-semibold text-gray-500 hover:bg-gray-100 transition-all flex items-center gap-1">
-                        ABSIS Web 
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </a>
                 </nav>
             </div>
 
@@ -294,7 +289,7 @@
                                 <div>
                                     <label class="block text-xs font-bold text-indigo-800 mb-1">Piket Kelas</label>
                                     <select id="piket-kelas" class="w-full px-3 py-2 border border-indigo-200 rounded shadow-sm focus:ring-indigo-500 bg-white font-medium">
-                                        <option value="">Pilih Keterangan...</option>
+                                        <option value="-">Pilih Keterangan...</option>
                                         <option value="Piket">Piket</option>
                                         <option value="Tidak">Tidak</option>
                                     </select>
@@ -302,7 +297,7 @@
                                 <div>
                                     <label class="block text-xs font-bold text-indigo-800 mb-1">Piket Tempat Sampah</label>
                                     <select id="piket-sampah" class="w-full px-3 py-2 border border-indigo-200 rounded shadow-sm focus:ring-indigo-500 bg-white font-medium">
-                                        <option value="">Pilih Keterangan...</option>
+                                        <option value="-">Pilih Keterangan...</option>
                                         <option value="Piket">Piket</option>
                                         <option value="Tidak">Tidak</option>
                                     </select>
@@ -330,7 +325,7 @@
                         <div class="mb-8 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm">
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
                                 <div>
-                                    <h3 class="text-xl font-bold text-blue-900">Manajemen Data & Jadwal (Excel)</h3>
+                                    <h3 class="text-xl font-bold text-blue-900">Manajemen Data & Jadwal</h3>
                                     <p class="text-sm text-blue-700">Perbarui database jadwal, guru piket, dan data siswa beserta kelasnya.</p>
                                 </div>
                                 <button onclick="showPasswordModal('import')" class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold py-2 px-5 rounded-lg shadow flex items-center gap-2 whitespace-nowrap">
@@ -339,55 +334,58 @@
                                 </button>
                             </div>
                             
-                            <div id="import-panel" class="hidden mt-6 pt-6 border-t border-blue-200/60 grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <!-- Import Jadwal -->
-                                <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
-                                    <div>
-                                        <h4 class="font-bold text-gray-800 text-lg mb-1">1. Update Jadwal Mengajar</h4>
-                                        <p class="text-xs text-gray-500 mb-4">Mengganti semua jadwal jam mengajar guru.</p>
-                                    </div>
-                                    <div class="flex flex-col space-y-3">
-                                        <button onclick="downloadTemplateJadwalExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
-                                            Download Template Excel
-                                        </button>
-                                        <input type="file" id="file-jadwal" accept=".xlsx, .xls" class="hidden" onchange="handleImportJadwalExcel(event)">
-                                        <button onclick="document.getElementById('file-jadwal').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
-                                            Upload Excel Jadwal
-                                        </button>
-                                    </div>
-                                </div>
+                            <div id="import-panel" class="hidden mt-6 pt-6 border-t border-blue-200/60">
                                 
-                                <!-- Import Piket -->
-                                <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
-                                    <div>
-                                        <h4 class="font-bold text-gray-800 text-lg mb-1">2. Update Data Guru Piket</h4>
-                                        <p class="text-xs text-gray-500 mb-4">Mengatur guru piket harian putra & putri.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <!-- Import Jadwal -->
+                                    <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-gray-800 text-lg mb-1">1. Update Jadwal Mengajar</h4>
+                                            <p class="text-xs text-gray-500 mb-4">Mengganti semua jadwal jam mengajar guru via Excel.</p>
+                                        </div>
+                                        <div class="flex flex-col space-y-3">
+                                            <button onclick="downloadTemplateJadwalExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
+                                                Download Template Excel
+                                            </button>
+                                            <input type="file" id="file-jadwal" accept=".xlsx, .xls" class="hidden" onchange="handleImportJadwalExcel(event)">
+                                            <button onclick="document.getElementById('file-jadwal').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
+                                                Upload Excel Jadwal
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="flex flex-col space-y-3">
-                                        <button onclick="downloadTemplatePiketExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
-                                            Download Template Excel
-                                        </button>
-                                        <input type="file" id="file-piket" accept=".xlsx, .xls" class="hidden" onchange="handleImportPiketExcel(event)">
-                                        <button onclick="document.getElementById('file-piket').click()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
-                                            Upload Excel Piket
-                                        </button>
+                                    
+                                    <!-- Import Piket -->
+                                    <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-gray-800 text-lg mb-1">2. Update Data Guru Piket</h4>
+                                            <p class="text-xs text-gray-500 mb-4">Mengatur guru piket harian putra & putri.</p>
+                                        </div>
+                                        <div class="flex flex-col space-y-3">
+                                            <button onclick="downloadTemplatePiketExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
+                                                Download Template Excel
+                                            </button>
+                                            <input type="file" id="file-piket" accept=".xlsx, .xls" class="hidden" onchange="handleImportPiketExcel(event)">
+                                            <button onclick="document.getElementById('file-piket').click()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
+                                                Upload Excel Piket
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Import Siswa -->
-                                <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
-                                    <div>
-                                        <h4 class="font-bold text-gray-800 text-lg mb-1">3. Update Data Siswa & Kelas</h4>
-                                        <p class="text-xs text-gray-500 mb-4">Menambah/mengubah daftar siswa dan pengaturan kelas putra/putri.</p>
-                                    </div>
-                                    <div class="flex flex-col space-y-3">
-                                        <button onclick="downloadTemplateSiswaExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
-                                            Download Template Excel
-                                        </button>
-                                        <input type="file" id="file-siswa" accept=".xlsx, .xls" class="hidden" onchange="handleImportSiswaExcel(event)">
-                                        <button onclick="document.getElementById('file-siswa').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
-                                            Upload Excel Siswa
-                                        </button>
+                                    <!-- Import Siswa -->
+                                    <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-gray-800 text-lg mb-1">3. Update Data Siswa & Kelas</h4>
+                                            <p class="text-xs text-gray-500 mb-4">Menambah/mengubah daftar siswa dan kelas.</p>
+                                        </div>
+                                        <div class="flex flex-col space-y-3">
+                                            <button onclick="downloadTemplateSiswaExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
+                                                Download Template Excel
+                                            </button>
+                                            <input type="file" id="file-siswa" accept=".xlsx, .xls" class="hidden" onchange="handleImportSiswaExcel(event)">
+                                            <button onclick="document.getElementById('file-siswa').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
+                                                Upload Excel Siswa
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -795,7 +793,6 @@
             setupChartFilters();
             setupStudentChartFilters();
             
-            // Fetch All Master Data
             await Promise.all([fetchPicketSchedule(), fetchSchedules(), fetchStudents()]);
             
             // Absensi Guru Listener
@@ -823,18 +820,6 @@
             loadSavedClassesToday();
         }
 
-        function setupReportFilters() {
-            const mSel = document.getElementById('report-month');
-            mSel.innerHTML = ''; monthNames.forEach((n, i) => mSel.options.add(new Option(n, i + 1)));
-            mSel.value = new Date().getMonth() + 1; document.getElementById('report-year').value = new Date().getFullYear();
-        }
-
-        function setupChartFilters() {
-            const mSel = document.getElementById('chart-month');
-            mSel.innerHTML = '<option value="0">Semua Bulan</option>'; monthNames.forEach((n, i) => mSel.options.add(new Option(n, i + 1)));
-            mSel.value = new Date().getMonth() + 1; document.getElementById('chart-year').value = new Date().getFullYear();
-        }
-
         // ================= NAVIGATION =================
         function switchTab(tabName, btn) {
             ['absensi', 'absensi-siswa', 'jadwal', 'wa', 'laporan', 'grafik'].forEach(id => {
@@ -855,7 +840,19 @@
             }
         }
 
-        // ================= FETCH DATA MASTER =================
+        function setupReportFilters() {
+            const mSel = document.getElementById('report-month');
+            mSel.innerHTML = ''; monthNames.forEach((n, i) => mSel.options.add(new Option(n, i + 1)));
+            mSel.value = new Date().getMonth() + 1; document.getElementById('report-year').value = new Date().getFullYear();
+        }
+
+        function setupChartFilters() {
+            const mSel = document.getElementById('chart-month');
+            mSel.innerHTML = '<option value="0">Semua Bulan</option>'; monthNames.forEach((n, i) => mSel.options.add(new Option(n, i + 1)));
+            mSel.value = new Date().getMonth() + 1; document.getElementById('chart-year').value = new Date().getFullYear();
+        }
+
+        // ================= FETCH DATA =================
         async function fetchPicketSchedule() {
             try {
                 const snap = await db.collection('picket_schedules').get();
@@ -897,7 +894,6 @@
                         if (!studentsData[data.category][data.className]) studentsData[data.category][data.className] = [];
                         studentsData[data.category][data.className].push(data.name);
                     });
-                    // Sort data siswa alfabetis
                     Object.keys(studentsData).forEach(cat => {
                         Object.keys(studentsData[cat]).forEach(cls => { studentsData[cat][cls].sort(); });
                     });
@@ -1108,12 +1104,12 @@
                 const doc = await db.collection('student_attendance').doc(id).get();
                 if (doc.exists) {
                     const data = doc.data();
-                    document.getElementById('piket-kelas').value = data.piketKelas && data.piketKelas !== '-' ? data.piketKelas : '';
-                    document.getElementById('piket-sampah').value = data.piketSampah && data.piketSampah !== '-' ? data.piketSampah : '';
+                    document.getElementById('piket-kelas').value = data.piketKelas && data.piketKelas !== '-' ? data.piketKelas : '-';
+                    document.getElementById('piket-sampah').value = data.piketSampah && data.piketSampah !== '-' ? data.piketSampah : '-';
                     if (data.records) { data.records.forEach(r => { savedRecords[r.name] = r; }); }
                 } else {
-                    document.getElementById('piket-kelas').value = '';
-                    document.getElementById('piket-sampah').value = '';
+                    document.getElementById('piket-kelas').value = '-';
+                    document.getElementById('piket-sampah').value = '-';
                 }
             } catch (e) { console.error(e); }
             showLoading(false);
@@ -1267,11 +1263,16 @@
                             text += `Nihil\n`;
                         }
                         
-                        let pktKelasIcon = data.piketKelas === 'Piket' ? 'Piket ✅' : (data.piketKelas === 'Tidak' ? 'Tidak ❌' : '-');
-                        let pktSampahIcon = data.piketSampah === 'Piket' ? 'Piket ✅' : (data.piketSampah === 'Tidak' ? 'Tidak ❌' : '-');
-
-                        text += `Piket Kelas: ${pktKelasIcon}\n`;
-                        text += `Piket Tempat Sampah: ${pktSampahIcon}\n\n`;
+                        // Sembunyikan piket jika nilainya '-' atau kosong
+                        if (data.piketKelas && data.piketKelas !== '-') {
+                            let pktKelasIcon = data.piketKelas === 'Piket' ? 'Piket ✅' : (data.piketKelas === 'Tidak' ? 'Tidak ❌' : data.piketKelas);
+                            text += `Piket Kelas: ${pktKelasIcon}\n`;
+                        }
+                        if (data.piketSampah && data.piketSampah !== '-') {
+                            let pktSampahIcon = data.piketSampah === 'Piket' ? 'Piket ✅' : (data.piketSampah === 'Tidak' ? 'Tidak ❌' : data.piketSampah);
+                            text += `Piket Tempat Sampah: ${pktSampahIcon}\n`;
+                        }
+                        text += `\n`;
                     });
                 }
                 
@@ -1305,9 +1306,11 @@
                                     } 
                                 }
                                 
+                                // Abaikan guru jika jam DAN pembiasaan tidak ada input valid
                                 if(hoursInfo.length === 0 && (!r.morningHabit || r.morningHabit === '-')) return; 
                                 
                                 let habitStr = '';
+                                // Hanya render kata Pembiasaan jika nilainya bukan '-'
                                 if (r.morningHabit && r.morningHabit !== '-') {
                                     let hIcon = '✅';
                                     if (r.morningHabit === 'Telat') hIcon = '⏱️';
@@ -1356,6 +1359,7 @@
                                 
                                 let finalLine = `${idx}. ${r.teacherName} - ${habitStr}${jamTeks}`;
                                 if (finalLine.endsWith(', ')) finalLine = finalLine.slice(0, -2);
+                                if (finalLine.endsWith(' - ')) return; // skip jika ternyata kosong melompong (edge case tambahan)
                                 
                                 text += `${finalLine}\n`;
                                 idx++;
@@ -1384,11 +1388,8 @@
             const tabs = document.getElementById("schedule-day-tabs"); const content = document.getElementById("schedule-content");
             tabs.innerHTML = ""; content.innerHTML = "";
             
-            // Handle visibilitas tombol admin
             const adminContainer = document.getElementById("admin-action-container");
-            if (adminContainer) {
-                adminContainer.style.display = isAdminUnlocked ? 'flex' : 'none';
-            }
+            if (adminContainer) adminContainer.style.display = isAdminUnlocked ? 'flex' : 'none';
 
             days.forEach((day, idx) => {
                 const btn = document.createElement("button"); btn.textContent = day; btn.className = `py-2.5 px-5 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${idx===0?'day-tab-active':'border-transparent text-gray-500 hover:text-gray-800'}`;
@@ -1853,6 +1854,7 @@
             }
         }
 
+        // ================= MODAL & UTILS =================
         function closeNotification() { document.getElementById('notification-modal').classList.add('hidden'); }
         function showPasswordModal(act) { document.getElementById('password-input').value = ''; document.getElementById('password-error').textContent = ''; document.getElementById('password-action').value = act; document.getElementById('password-modal').classList.remove('hidden'); }
         function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
