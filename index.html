@@ -37,8 +37,6 @@
         .status-izin { background-color: #fef9c3 !important; color: #854d0e; font-weight: 500;}
         .status-alpha { background-color: #fee2e2 !important; color: #991b1b; font-weight: 500;}
         
-        #chart-container { position: relative; height: 60vh; width: 100%; }
-        
         /* Scrollbar kustom tabel */
         .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px;}
@@ -491,27 +489,90 @@
                 <!-- MENU 6: GRAFIK -->
                 <div id="grafik" class="hidden space-y-6 fade-in">
                     <div class="bg-white p-5 md:p-6 rounded-xl shadow border border-gray-100">
-                        <div class="border-b pb-4 mb-6">
-                            <h2 class="text-xl md:text-2xl font-bold text-gray-800">Visualisasi Kehadiran Guru</h2>
+                        <div class="border-b pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <h2 class="text-xl md:text-2xl font-bold text-gray-800">Visualisasi Kehadiran</h2>
+                            <div class="inline-flex bg-gray-100 rounded-lg p-1 shadow-sm">
+                                <button onclick="switchChartTab('guru')" id="btn-chart-guru" class="px-4 py-2 text-sm font-bold rounded-md bg-blue-600 text-white shadow-sm transition-all">Guru</button>
+                                <button onclick="switchChartTab('siswa')" id="btn-chart-siswa" class="px-4 py-2 text-sm font-bold rounded-md text-gray-600 hover:bg-gray-200 transition-all">Siswa</button>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 items-end">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Guru</label>
-                                <select id="chart-teacher" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500"></select>
+
+                        <!-- GRAFIK GURU -->
+                        <div id="chart-section-guru">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 items-end">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Guru</label>
+                                    <select id="chart-teacher" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Bulan</label>
+                                    <select id="chart-month" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tahun</label>
+                                    <input type="number" id="chart-year" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500">
+                                </div>
+                                <button onclick="generateChart()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded shadow h-[42px] transition">Proses Grafik Guru</button>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Bulan</label>
-                                <select id="chart-month" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500"></select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tahun</label>
-                                <input type="number" id="chart-year" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500">
-                            </div>
-                            <button onclick="generateChart()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded shadow h-[42px] transition">Proses Grafik</button>
+                            
+                            <div style="position: relative; height: 50vh; width: 100%;" class="mt-8 bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><canvas id="attendanceChart"></canvas></div>
+                            <div id="chart-data-table" class="mt-8"></div>
                         </div>
-                        
-                        <div id="chart-container" class="mt-8 bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><canvas id="attendanceChart"></canvas></div>
-                        <div id="chart-data-table" class="mt-8"></div>
+
+                        <!-- GRAFIK SISWA -->
+                        <div id="chart-section-siswa" class="hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 items-end">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Kategori</label>
+                                    <select id="chart-student-cat" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500" onchange="populateChartStudentClasses()">
+                                        <option value="Putra">Putra</option>
+                                        <option value="Putri">Putri</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Kelas</label>
+                                    <select id="chart-student-class" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500" onchange="populateChartStudents()">
+                                        <option value="semua">Semua Kelas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Siswa</label>
+                                    <select id="chart-student-name" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500">
+                                        <option value="semua">Semua Siswa</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Mode Waktu</label>
+                                    <select id="chart-student-time-mode" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500" onchange="toggleChartStudentTimeInputs()">
+                                        <option value="bulan">Per Bulan</option>
+                                        <option value="tahun_ajaran">1 Tahun Ajaran</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="student-time-bulan-container" class="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Bulan</label>
+                                        <select id="chart-student-month" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tahun</label>
+                                        <input type="number" id="chart-student-year" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500">
+                                    </div>
+                                </div>
+                                <div id="student-time-tahun-container" class="col-span-1 md:col-span-2 hidden">
+                                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tahun Ajaran (Juli - Juni)</label>
+                                    <select id="chart-student-academic-year" class="w-full px-3 py-2 border border-gray-300 rounded shadow-sm bg-white focus:ring-blue-500"></select>
+                                </div>
+                                
+                                <div class="col-span-1 md:col-span-2 flex items-end">
+                                    <button onclick="generateStudentChart()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow h-[42px] transition">Proses Grafik Siswa</button>
+                                </div>
+                            </div>
+                            
+                            <div style="position: relative; height: 50vh; width: 100%;" class="mt-8 bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><canvas id="studentAttendanceChart"></canvas></div>
+                            <div id="chart-student-data-table" class="mt-8"></div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -579,7 +640,8 @@
         let currentReportData = null; 
         let isAppInitialized = false; 
         let attendanceChartInstance = null;
-        let isAdminUnlocked = false; // State untuk otorisasi fitur hapus data
+        let studentChartInstance = null;
+        let isAdminUnlocked = false; 
         
         // Konstanta
         const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
@@ -662,6 +724,7 @@
             
             setupReportFilters();
             setupChartFilters();
+            setupStudentChartFilters();
             
             // Fetch All Master Data
             await Promise.all([fetchPicketSchedule(), fetchSchedules(), fetchStudents()]);
@@ -687,6 +750,7 @@
             document.getElementById('password-input').addEventListener('keyup', function(e) { if (e.key === 'Enter') checkPassword(); });
             
             populateClassDropdowns();
+            populateChartStudentClasses();
             loadSavedClassesToday();
         }
 
@@ -739,7 +803,7 @@
                 schedulesData = {}; days.forEach(day => { schedulesData[day] = { Putra: [], Putri: [] }; });
                 snap.forEach(doc => {
                     const sch = doc.data();
-                    sch.id = doc.id; // Menyimpan ID dokumen untuk keperluan Hapus Data
+                    sch.id = doc.id;
                     if (schedulesData[sch.day] && schedulesData[sch.day][sch.category]) schedulesData[sch.day][sch.category].push(sch);
                 });
                 for (const day in schedulesData) {
@@ -846,6 +910,7 @@
                     event.target.value = ''; showNotification("Data Siswa & Kelas berhasil di-import!"); 
                     await fetchStudents();
                     populateClassDropdowns();
+                    populateChartStudentClasses();
                 } catch(err) { showNotification("Gagal membaca Excel Siswa: " + err.message); } finally { showLoading(false); }
             }; reader.readAsArrayBuffer(file);
         }
@@ -1425,6 +1490,7 @@
             doc.save(`Laporan_SIGAP_${m}_${y}.pdf`);
         }
 
+        // ================= LOGIKA GRAFIK GURU =================
         async function generateChart() {
             showLoading(true); const tbl = document.getElementById('chart-data-table'); tbl.innerHTML = ''; 
             try {
@@ -1457,6 +1523,180 @@
             } catch (e) { showNotification("Gagal: " + e.message); } finally { showLoading(false); }
         }
 
+        // ================= LOGIKA GRAFIK SISWA =================
+        function switchChartTab(tab) {
+            if (tab === 'guru') {
+                document.getElementById('chart-section-guru').classList.remove('hidden');
+                document.getElementById('chart-section-siswa').classList.add('hidden');
+                document.getElementById('btn-chart-guru').className = "px-4 py-2 text-sm font-bold rounded-md bg-blue-600 text-white shadow-sm transition-all";
+                document.getElementById('btn-chart-siswa').className = "px-4 py-2 text-sm font-bold rounded-md text-gray-600 hover:bg-gray-200 transition-all";
+            } else {
+                document.getElementById('chart-section-guru').classList.add('hidden');
+                document.getElementById('chart-section-siswa').classList.remove('hidden');
+                document.getElementById('btn-chart-siswa').className = "px-4 py-2 text-sm font-bold rounded-md bg-blue-600 text-white shadow-sm transition-all";
+                document.getElementById('btn-chart-guru').className = "px-4 py-2 text-sm font-bold rounded-md text-gray-600 hover:bg-gray-200 transition-all";
+            }
+        }
+
+        function setupStudentChartFilters() {
+            const mSel = document.getElementById('chart-student-month');
+            mSel.innerHTML = ''; 
+            monthNames.forEach((n, i) => mSel.options.add(new Option(n, i + 1)));
+            mSel.value = new Date().getMonth() + 1; 
+            document.getElementById('chart-student-year').value = new Date().getFullYear();
+
+            const aySel = document.getElementById('chart-student-academic-year');
+            const currYear = new Date().getFullYear();
+            for (let y = currYear - 3; y <= currYear + 1; y++) {
+                aySel.options.add(new Option(`${y} / ${y+1}`, y));
+            }
+            const curM = new Date().getMonth() + 1;
+            aySel.value = curM >= 7 ? currYear : currYear - 1;
+        }
+
+        function populateChartStudentClasses() {
+            const cat = document.getElementById('chart-student-cat').value;
+            const clsSel = document.getElementById('chart-student-class');
+            clsSel.innerHTML = '<option value="semua">Semua Kelas</option>';
+            if (studentsData[cat]) {
+                Object.keys(studentsData[cat]).sort().forEach(c => clsSel.options.add(new Option(c, c)));
+            }
+            populateChartStudents();
+        }
+
+        function populateChartStudents() {
+            const cat = document.getElementById('chart-student-cat').value;
+            const cls = document.getElementById('chart-student-class').value;
+            const stdSel = document.getElementById('chart-student-name');
+            stdSel.innerHTML = '<option value="semua">Semua Siswa</option>';
+            
+            if (cls !== 'semua' && studentsData[cat] && studentsData[cat][cls]) {
+                studentsData[cat][cls].forEach(s => stdSel.options.add(new Option(s, s)));
+            }
+        }
+
+        function toggleChartStudentTimeInputs() {
+            const mode = document.getElementById('chart-student-time-mode').value;
+            if (mode === 'bulan') {
+                document.getElementById('student-time-bulan-container').classList.remove('hidden');
+                document.getElementById('student-time-tahun-container').classList.add('hidden');
+            } else {
+                document.getElementById('student-time-bulan-container').classList.add('hidden');
+                document.getElementById('student-time-tahun-container').classList.remove('hidden');
+            }
+        }
+
+        async function generateStudentChart() {
+            showLoading(true);
+            const tbl = document.getElementById('chart-student-data-table');
+            tbl.innerHTML = '';
+            
+            try {
+                const cat = document.getElementById('chart-student-cat').value;
+                const cls = document.getElementById('chart-student-class').value;
+                const std = document.getElementById('chart-student-name').value;
+                const mode = document.getElementById('chart-student-time-mode').value;
+                
+                let start, end;
+                let titlePeriod = '';
+
+                if (mode === 'bulan') {
+                    const y = document.getElementById('chart-student-year').value;
+                    const m = document.getElementById('chart-student-month').value;
+                    if (!y) throw new Error("Isi tahun!");
+                    start = `${y}-${String(m).padStart(2, '0')}-01`;
+                    end = `${y}-${String(m).padStart(2, '0')}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`;
+                    titlePeriod = `${monthNames[m-1]} ${y}`;
+                } else {
+                    const startYear = parseInt(document.getElementById('chart-student-academic-year').value);
+                    start = `${startYear}-07-01`;
+                    end = `${startYear + 1}-06-30`;
+                    titlePeriod = `Tahun Ajaran ${startYear}/${startYear+1}`;
+                }
+                
+                const snap = await db.collection('student_attendance')
+                    .where('date', '>=', start)
+                    .where('date', '<=', end)
+                    .get();
+                    
+                let sData = { hadir:0, telat:0, izin:0, sakit:0, pulang:0, alpha:0 };
+                
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.category !== cat) return;
+                    if (cls !== 'semua' && data.className !== cls) return;
+                    
+                    (data.records || []).forEach(r => {
+                        if (std !== 'semua' && r.name !== std) return;
+                        
+                        const st = r.status;
+                        if(st === 'Hadir') sData.hadir++;
+                        else if(st === 'Telat') sData.telat++;
+                        else if(st === 'Izin') sData.izin++;
+                        else if(st === 'Sakit') sData.sakit++;
+                        else if(st === 'Pulang') sData.pulang++;
+                        else if(st === 'Alpha') sData.alpha++;
+                    });
+                });
+                
+                const tot = sData.hadir + sData.telat + sData.izin + sData.sakit + sData.pulang + sData.alpha;
+                
+                let titleTarget = `${cat}`;
+                if (cls !== 'semua') titleTarget += ` - ${cls}`;
+                if (std !== 'semua') titleTarget += ` - ${std}`;
+                else if (cls !== 'semua') titleTarget += ` (Semua Siswa)`;
+                else titleTarget += ` (Semua Kelas)`;
+                
+                tbl.innerHTML = `
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Rekap Data Siswa: ${titleTarget} (${titlePeriod})</h3>
+                    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+                        <table class="min-w-full bg-white text-sm text-left">
+                            <thead class="bg-gray-50 border-b">
+                                <tr><th class="py-2 px-4 font-semibold">Status</th><th class="py-2 px-4 font-semibold text-center">Frekuensi (Hari)</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-emerald-500 font-medium">Hadir</td><td class="py-2 px-4 text-center font-bold">${sData.hadir}</td></tr>
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-yellow-400 font-medium">Telat</td><td class="py-2 px-4 text-center font-bold">${sData.telat}</td></tr>
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-blue-400 font-medium">Sakit</td><td class="py-2 px-4 text-center font-bold">${sData.sakit}</td></tr>
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-orange-400 font-medium">Izin</td><td class="py-2 px-4 text-center font-bold">${sData.izin}</td></tr>
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-purple-500 font-medium">Pulang</td><td class="py-2 px-4 text-center font-bold">${sData.pulang}</td></tr>
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-red-500 font-medium">Alpha</td><td class="py-2 px-4 text-center font-bold text-red-600">${sData.alpha}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>`;
+                    
+                if (studentChartInstance) studentChartInstance.destroy();
+                
+                if (tot === 0) {
+                    tbl.innerHTML += `<p class="text-center text-gray-500 mt-4 font-medium">Belum ada data kehadiran siswa yang tercatat pada periode ini.</p>`;
+                    return;
+                }
+                
+                studentChartInstance = new Chart(document.getElementById('studentAttendanceChart').getContext('2d'), { 
+                    type: 'doughnut', 
+                    data: { 
+                        labels: ['Hadir', 'Telat', 'Sakit', 'Izin', 'Pulang', 'Alpha'], 
+                        datasets: [{ 
+                            data: [sData.hadir, sData.telat, sData.sakit, sData.izin, sData.pulang, sData.alpha], 
+                            backgroundColor: ['#10b981', '#fbbf24', '#3b82f6', '#fb923c', '#a855f7', '#ef4444'], 
+                            borderWidth: 2, 
+                            hoverOffset: 4 
+                        }] 
+                    }, 
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { position: 'bottom' } } 
+                    } 
+                });
+                
+            } catch (e) {
+                showNotification("Gagal memproses grafik: " + e.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
         function closeNotification() { document.getElementById('notification-modal').classList.add('hidden'); }
         function showPasswordModal(act) { document.getElementById('password-input').value = ''; document.getElementById('password-error').textContent = ''; document.getElementById('password-action').value = act; document.getElementById('password-modal').classList.remove('hidden'); }
         function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
@@ -1464,10 +1704,10 @@
         function checkPassword() { 
             if (document.getElementById('password-input').value === 'absisaltaz123') { 
                 closePasswordModal(); 
-                isAdminUnlocked = true; // State otorisasi berhasil
+                isAdminUnlocked = true;
                 if(document.getElementById('password-action').value === 'import') {
                     document.getElementById('import-panel').classList.remove('hidden'); 
-                    populateScheduleView(); // Render ulang tabel agar muncul checkbox
+                    populateScheduleView();
                 } 
             } else { 
                 document.getElementById('password-error').textContent = 'Password salah!'; 
