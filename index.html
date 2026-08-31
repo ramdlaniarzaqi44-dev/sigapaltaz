@@ -207,11 +207,14 @@
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Petugas Piket & Lokasi</label>
-                                <div class="flex items-center space-x-2">
-                                    <select id="picket-teacher" class="flex-grow px-3 py-2 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white font-medium">
-                                        <option value="">Pilih Guru Piket...</option>
-                                    </select>
-                                    <select id="picket-location" onchange="populateAttendanceForm()" class="px-3 py-2 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white font-bold text-blue-700 w-32">
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <div class="flex-grow flex gap-2">
+                                        <select id="picket-teacher" onchange="checkManualPicket()" class="flex-grow px-3 py-2 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white font-medium">
+                                            <option value="">Pilih Guru Piket...</option>
+                                        </select>
+                                        <input type="text" id="picket-teacher-manual" class="hidden flex-grow px-3 py-2 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white font-medium" placeholder="Ketik nama guru piket...">
+                                    </div>
+                                    <select id="picket-location" onchange="updateDayFromDate()" class="px-3 py-2 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white font-bold text-blue-700 w-32 flex-shrink-0">
                                         <option value="Putra">PUTRA</option>
                                         <option value="Putri">PUTRI</option>
                                     </select>
@@ -986,6 +989,19 @@
             select.innerHTML = '<option value="">Pilih Guru Piket...</option>';
             const allPicket = [...new Set(Object.values(picketSchedule).flatMap(day => [day.Putra, day.Putri]))].filter(n => n && n !== 'LIBUR' && n !== '-' && n.trim() !== '').sort();
             allPicket.forEach(name => select.options.add(new Option(name, name)));
+            select.options.add(new Option("Lainnya (Isi Manual)...", "manual"));
+        }
+
+        function checkManualPicket() {
+            const select = document.getElementById('picket-teacher');
+            const manualInput = document.getElementById('picket-teacher-manual');
+            if (select.value === 'manual') {
+                manualInput.classList.remove('hidden');
+                manualInput.focus();
+            } else {
+                manualInput.classList.add('hidden');
+                manualInput.value = '';
+            }
         }
 
         function updateDayFromDate(){
@@ -998,9 +1014,23 @@
             const picketSelect = document.getElementById('picket-teacher');
             const loc = document.getElementById('picket-location').value;
             const pktName = (picketSchedule[dayName] && picketSchedule[dayName][loc]) ? picketSchedule[dayName][loc] : '';
+            
             let found = false;
-            for (let i = 0; i < picketSelect.options.length; i++) { if (picketSelect.options[i].value === pktName) { picketSelect.selectedIndex = i; found = true; break; } }
-            if (!found) picketSelect.selectedIndex = 0; 
+            for (let i = 0; i < picketSelect.options.length; i++) { 
+                if (picketSelect.options[i].value === pktName) { 
+                    picketSelect.selectedIndex = i; 
+                    found = true; 
+                    break; 
+                } 
+            }
+            if (!found && pktName && pktName !== '-' && pktName !== 'LIBUR') {
+                picketSelect.value = 'manual';
+                document.getElementById('picket-teacher-manual').value = pktName;
+            } else if (!found) {
+                picketSelect.selectedIndex = 0; 
+            }
+            
+            checkManualPicket();
             populateAttendanceForm();
         }
 
@@ -1041,8 +1071,13 @@
 
         async function saveAttendance() {
             const date = document.getElementById('attendance-date').value; const day = document.getElementById('attendance-day').value;
-            const pName = document.getElementById('picket-teacher').value; const pLoc = document.getElementById('picket-location').value;
+            const pSel = document.getElementById('picket-teacher').value;
+            const pMan = document.getElementById('picket-teacher-manual').value.trim();
+            const pName = pSel === 'manual' ? pMan : pSel;
+            const pLoc = document.getElementById('picket-location').value;
+            
             if (!date || !pName) return showNotification('Peringatan: Kolom Tanggal dan Guru Piket wajib diisi!');
+            
             const rows = document.querySelectorAll('#attendance-table tbody tr');
             for (const row of rows) { for (let i = 1; i <= 9; i++) { const sel = row.querySelector(`select[name="jam${i}"]`); if (sel && sel.value === '-') return showNotification(`Data belum lengkap! Harap isi status kehadiran untuk ${row.cells[0].textContent} pada Jam ke-${i}.`); } }
 
@@ -1877,3 +1912,4 @@
     </script>
 </body>
 </html>
+```
