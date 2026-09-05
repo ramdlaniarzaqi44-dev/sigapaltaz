@@ -1383,7 +1383,7 @@
                                         
                                         if (gStatus === 'Alpha') { icon = '❌'; statText = ' Alpha'; }
                                         else if (gStatus === 'Sakit') { icon = '🏥'; statText = ' Sakit'; }
-                                        else if (gStatus.includes('Izin')) { icon = '⚠️'; statText = ' Izin'; }
+                                        else if (gStatus.includes('Izin')) { icon = '⚠️'; statText = ' ' + gStatus; }
                                         else if (gStatus === 'Telat') { icon = '⏱️'; statText = ' Telat'; }
 
                                         jamStrings.push(`${rangeStr}${statText} ${icon}`);
@@ -1616,13 +1616,21 @@
                 if(data.picketPutra) { if(!pSum[data.picketPutra]) pSum[data.picketPutra]={Pa:[],Pi:[]}; pSum[data.picketPutra].Pa.push(fDate); }
                 if(data.picketPutri) { if(!pSum[data.picketPutri]) pSum[data.picketPutri]={Pa:[],Pi:[]}; pSum[data.picketPutri].Pi.push(fDate); }
                 (data.records||[]).forEach(rec => {
-                    if (!aSum[rec.teacherName]) aSum[rec.teacherName] = { pgH:0, pgT:0, pgX:0, jamH:0, jamT:0, jamS:0, jamI:0, jamA:0, totalJadwal:0, notes:new Set() };
+                    if (!aSum[rec.teacherName]) aSum[rec.teacherName] = { pgH:0, pgT:0, pgX:0, jamH:0, jamT:0, jamS:0, jamID:0, jamIL:0, jamA:0, totalJadwal:0, notes:new Set() };
                     const ts = aSum[rec.teacherName];
                     if (rec.morningHabit === 'Hadir') ts.pgH++; else if (rec.morningHabit === 'Telat') ts.pgT++; else if (rec.morningHabit === 'Tidak Ikut') ts.pgX++;
                     if (rec.notes && rec.notes.trim()) ts.notes.add(rec.notes.trim());
                     for (let i = 1; i <= 9; i++) {
                         const st = rec[`jam${i}`];
-                        if (st) { ts.totalJadwal++; if (st === 'Hadir') ts.jamH++; else if (st === 'Telat') ts.jamT++; else if (st === 'Sakit') ts.jamS++; else if (st.includes('Izin')) ts.jamI++; else if (st === 'Alpha') ts.jamA++; }
+                        if (st) { 
+                            ts.totalJadwal++; 
+                            if (st === 'Hadir') ts.jamH++; 
+                            else if (st === 'Telat') ts.jamT++; 
+                            else if (st === 'Sakit') ts.jamS++; 
+                            else if (st === 'Izin (D)') ts.jamID++; 
+                            else if (st === 'Izin (L)') ts.jamIL++; 
+                            else if (st === 'Alpha') ts.jamA++; 
+                        }
                     }
                 });
             });
@@ -1634,12 +1642,12 @@
 
             html += `<div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm"><div class="bg-blue-50 p-3 border-b"><h3 class="font-bold text-blue-900">Rekapitulasi Absensi Mengajar</h3></div><div class="p-0 overflow-x-auto"><table class="min-w-max w-full text-xs text-center"><thead class="bg-gray-50">
                 <tr><th rowspan="2" class="p-3 border-r border-b text-left font-bold text-gray-700 bg-gray-50 sticky left-0 z-10">Nama Guru</th><th rowspan="2" class="p-2 border-r border-b font-bold text-gray-700 bg-gray-100">Total<br>Jadwal</th>
-                <th colspan="3" class="p-2 border-r border-b font-bold text-gray-700 bg-indigo-50">Pembiasaan Pagi (Hari)</th><th colspan="6" class="p-2 border-b border-r font-bold text-gray-700 bg-amber-50">Jam Pelajaran (JP)</th><th rowspan="2" class="p-2 border-b font-bold text-gray-700 w-48">Catatan Khusus</th></tr>
-                <tr><th class="p-2 border-r border-b text-green-700 font-semibold bg-indigo-50/50">Hadir</th><th class="p-2 border-r border-b text-yellow-600 font-semibold bg-indigo-50/50">Telat</th><th class="p-2 border-r border-b text-red-500 font-semibold bg-indigo-50/50">Alpha</th><th class="p-2 border-r border-b text-green-700 font-bold bg-green-50">Hadir</th><th class="p-2 border-r border-b text-yellow-600 font-bold bg-amber-50/50">Telat</th><th class="p-2 border-r border-b text-blue-600 font-bold bg-blue-50">Sakit</th><th class="p-2 border-r border-b text-purple-600 font-bold bg-purple-50">Izin</th><th class="p-2 border-b border-r text-red-600 font-bold bg-red-50">Alpha</th><th class="p-2 border-b border-r text-gray-700 font-bold bg-gray-100">Total Hadir</th></tr></thead><tbody class="divide-y">`;
+                <th colspan="3" class="p-2 border-r border-b font-bold text-gray-700 bg-indigo-50">Pembiasaan Pagi (Hari)</th><th colspan="7" class="p-2 border-b border-r font-bold text-gray-700 bg-amber-50">Jam Pelajaran (JP)</th><th rowspan="2" class="p-2 border-b font-bold text-gray-700 w-48">Catatan Khusus</th></tr>
+                <tr><th class="p-2 border-r border-b text-green-700 font-semibold bg-indigo-50/50">Hadir</th><th class="p-2 border-r border-b text-yellow-600 font-semibold bg-indigo-50/50">Telat</th><th class="p-2 border-r border-b text-red-500 font-semibold bg-indigo-50/50">Alpha</th><th class="p-2 border-r border-b text-green-700 font-bold bg-green-50">Hadir</th><th class="p-2 border-r border-b text-yellow-600 font-bold bg-amber-50/50">Telat</th><th class="p-2 border-r border-b text-blue-600 font-bold bg-blue-50">Sakit</th><th class="p-2 border-r border-b text-purple-600 font-bold bg-purple-50">Izin (D)</th><th class="p-2 border-r border-b text-fuchsia-600 font-bold bg-purple-50">Izin (L)</th><th class="p-2 border-b border-r text-red-600 font-bold bg-red-50">Alpha</th><th class="p-2 border-b border-r text-gray-700 font-bold bg-gray-100">Total Hadir</th></tr></thead><tbody class="divide-y">`;
             
             Object.keys(aSum).sort().forEach(t => {
                 const s = aSum[t]; const totHadirJP = s.jamH + s.jamT; const nList = Array.from(s.notes).join('; ');
-                html += `<tr class="hover:bg-gray-50"><td class="p-3 border-r text-left font-semibold text-gray-800 bg-white sticky left-0 z-10">${t}</td><td class="p-2 border-r font-bold bg-gray-50">${s.totalJadwal}</td><td class="p-2 border-r">${s.pgH}</td><td class="p-2 border-r">${s.pgT}</td><td class="p-2 border-r">${s.pgX}</td><td class="p-2 border-r bg-green-50/30">${s.jamH}</td><td class="p-2 border-r">${s.jamT}</td><td class="p-2 border-r">${s.jamS}</td><td class="p-2 border-r">${s.jamI}</td><td class="p-2 border-r text-red-500">${s.jamA}</td><td class="p-2 border-r font-bold text-green-700 bg-green-50">${totHadirJP}</td><td class="p-2 text-left text-gray-500 italic max-w-[200px] truncate" title="${nList}">${nList || '-'}</td></tr>`;
+                html += `<tr class="hover:bg-gray-50"><td class="p-3 border-r text-left font-semibold text-gray-800 bg-white sticky left-0 z-10">${t}</td><td class="p-2 border-r font-bold bg-gray-50">${s.totalJadwal}</td><td class="p-2 border-r">${s.pgH}</td><td class="p-2 border-r">${s.pgT}</td><td class="p-2 border-r">${s.pgX}</td><td class="p-2 border-r bg-green-50/30">${s.jamH}</td><td class="p-2 border-r">${s.jamT}</td><td class="p-2 border-r">${s.jamS}</td><td class="p-2 border-r">${s.jamID}</td><td class="p-2 border-r">${s.jamIL}</td><td class="p-2 border-r text-red-500">${s.jamA}</td><td class="p-2 border-r font-bold text-green-700 bg-green-50">${totHadirJP}</td><td class="p-2 text-left text-gray-500 italic max-w-[200px] truncate" title="${nList}">${nList || '-'}</td></tr>`;
             });
             container.innerHTML = html + `</tbody></table></div></div>`;
         }
@@ -1656,13 +1664,21 @@
                 if(d.picketPutra) { if(!pSum[d.picketPutra]) pSum[d.picketPutra]={Pa:[],Pi:[]}; pSum[d.picketPutra].Pa.push(fd); }
                 if(d.picketPutri) { if(!pSum[d.picketPutri]) pSum[d.picketPutri]={Pa:[],Pi:[]}; pSum[d.picketPutri].Pi.push(fd); }
                 (d.records||[]).forEach(r => {
-                    if (!aSum[r.teacherName]) aSum[r.teacherName] = { pgH:0, pgT:0, pgX:0, jamH:0, jamT:0, jamS:0, jamI:0, jamA:0, totJ:0, n:new Set() };
+                    if (!aSum[r.teacherName]) aSum[r.teacherName] = { pgH:0, pgT:0, pgX:0, jamH:0, jamT:0, jamS:0, jamID:0, jamIL:0, jamA:0, totJ:0, n:new Set() };
                     const ts = aSum[r.teacherName];
                     if (r.morningHabit === 'Hadir') ts.pgH++; else if (r.morningHabit === 'Telat') ts.pgT++; else if (r.morningHabit === 'Tidak Ikut') ts.pgX++;
                     if (r.notes && r.notes.trim()) ts.n.add(r.notes.trim());
                     for (let i=1; i<=9; i++) {
                         const st = r[`jam${i}`];
-                        if (st) { ts.totJ++; if (st === 'Hadir') ts.jamH++; else if (st === 'Telat') ts.jamT++; else if (st === 'Sakit') ts.jamS++; else if (st.includes('Izin')) ts.jamI++; else if (st === 'Alpha') ts.jamA++; }
+                        if (st) { 
+                            ts.totJ++; 
+                            if (st === 'Hadir') ts.jamH++; 
+                            else if (st === 'Telat') ts.jamT++; 
+                            else if (st === 'Sakit') ts.jamS++; 
+                            else if (st === 'Izin (D)') ts.jamID++; 
+                            else if (st === 'Izin (L)') ts.jamIL++; 
+                            else if (st === 'Alpha') ts.jamA++; 
+                        }
                     }
                 });
             });
@@ -1674,11 +1690,11 @@
             doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("2. Rekap Absensi Mengajar", 14, currentY);
             
             const head = [
-                [{content:'Nama Guru', rowSpan:2, styles:{valign:'middle'}}, {content:'Jadwal', rowSpan:2, styles:{valign:'middle'}}, {content:'Total Hadir', rowSpan:2, styles:{valign:'middle'}}, {content:'Pembiasaan Pagi', colSpan:3, styles:{halign:'center'}}, {content:'Jam Pelajaran (JP)', colSpan:5, styles:{halign:'center'}}, {content:'Catatan Khusus', rowSpan:2, styles:{valign:'middle'}}],
-                ['H', 'T', 'A', 'H', 'T', 'S', 'I', 'A']
+                [{content:'Nama Guru', rowSpan:2, styles:{valign:'middle'}}, {content:'Jadwal', rowSpan:2, styles:{valign:'middle'}}, {content:'Total Hadir', rowSpan:2, styles:{valign:'middle'}}, {content:'Pembiasaan Pagi', colSpan:3, styles:{halign:'center'}}, {content:'Jam Pelajaran (JP)', colSpan:6, styles:{halign:'center'}}, {content:'Catatan Khusus', rowSpan:2, styles:{valign:'middle'}}],
+                ['H', 'T', 'A', 'H', 'T', 'S', 'I(D)', 'I(L)', 'A']
             ];
-            const bdy = Object.keys(aSum).sort().map(t => { const s = aSum[t]; return [t, s.totJ, (s.jamH+s.jamT), s.pgH, s.pgT, s.pgX, s.jamH, s.jamT, s.jamS, s.jamI, s.jamA, Array.from(s.n).join('; ')]; });
-            doc.autoTable({ startY: currentY + 4, head: head, body: bdy, theme: 'grid', headStyles: { fillColor: [37, 99, 235], halign: 'center' }, styles: { fontSize: 8, cellPadding: 1.5 }, columnStyles: { 0: {cellWidth: 45}, 11: {cellWidth: 40} } });
+            const bdy = Object.keys(aSum).sort().map(t => { const s = aSum[t]; return [t, s.totJ, (s.jamH+s.jamT), s.pgH, s.pgT, s.pgX, s.jamH, s.jamT, s.jamS, s.jamID, s.jamIL, s.jamA, Array.from(s.n).join('; ')]; });
+            doc.autoTable({ startY: currentY + 4, head: head, body: bdy, theme: 'grid', headStyles: { fillColor: [37, 99, 235], halign: 'center' }, styles: { fontSize: 8, cellPadding: 1.5 }, columnStyles: { 0: {cellWidth: 45}, 12: {cellWidth: 40} } });
             doc.save(`Laporan_SIGAP_${m}_${y}.pdf`);
         }
 
@@ -1692,10 +1708,26 @@
                 if (m === '0') { start = `${y}-01-01`; end = `${y}-12-31`; } else { start = `${y}-${String(m).padStart(2, '0')}-01`; end = `${y}-${String(m).padStart(2, '0')}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`; }
 
                 const snap = await db.collection('attendance').where('date', '>=', start).where('date', '<=', end).get();
-                const s = { h:0, t:0, skt:0, i:0, a:0 };
-                snap.forEach(doc => { doc.data().records.forEach(r => { if (t === 'semua' || r.teacherName === t) { for (let i = 1; i <= 9; i++) { const st = r[`jam${i}`]; if (st) { if(st === 'Hadir') s.h++; else if(st === 'Telat') s.t++; else if(st === 'Sakit') s.skt++; else if(st.includes('Izin')) s.i++; else if(st === 'Alpha') s.a++; } } } }); });
+                const s = { h:0, t:0, skt:0, id:0, il:0, a:0 };
+                snap.forEach(doc => { 
+                    doc.data().records.forEach(r => { 
+                        if (t === 'semua' || r.teacherName === t) { 
+                            for (let i = 1; i <= 9; i++) { 
+                                const st = r[`jam${i}`]; 
+                                if (st) { 
+                                    if(st === 'Hadir') s.h++; 
+                                    else if(st === 'Telat') s.t++; 
+                                    else if(st === 'Sakit') s.skt++; 
+                                    else if(st === 'Izin (D)') s.id++; 
+                                    else if(st === 'Izin (L)') s.il++; 
+                                    else if(st === 'Alpha') s.a++; 
+                                } 
+                            } 
+                        } 
+                    }); 
+                });
                 
-                const tn = document.getElementById('chart-teacher').selectedOptions[0].textContent; const pr = m === '0' ? `Tahun ${y}` : `${monthNames[m-1]} ${y}`; const tot = s.h + s.t + s.skt + s.i + s.a;
+                const tn = document.getElementById('chart-teacher').selectedOptions[0].textContent; const pr = m === '0' ? `Tahun ${y}` : `${monthNames[m-1]} ${y}`; const tot = s.h + s.t + s.skt + s.id + s.il + s.a;
 
                 tbl.innerHTML = `
                     <h3 class="text-lg font-bold mb-3 text-gray-800">Rekap Data: ${tn} (${pr})</h3>
@@ -1704,14 +1736,26 @@
                                 <tr><td class="py-2 px-4 border-l-[4px] border-l-emerald-500 font-medium">Hadir</td><td class="py-2 px-4 text-center font-bold">${s.h}</td></tr>
                                 <tr><td class="py-2 px-4 border-l-[4px] border-l-yellow-400 font-medium">Telat</td><td class="py-2 px-4 text-center font-bold">${s.t}</td></tr>
                                 <tr><td class="py-2 px-4 border-l-[4px] border-l-blue-400 font-medium">Sakit</td><td class="py-2 px-4 text-center font-bold">${s.skt}</td></tr>
-                                <tr><td class="py-2 px-4 border-l-[4px] border-l-purple-500 font-medium">Izin</td><td class="py-2 px-4 text-center font-bold">${s.i}</td></tr>
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-purple-500 font-medium">Izin (D)</td><td class="py-2 px-4 text-center font-bold">${s.id}</td></tr>
+                                <tr><td class="py-2 px-4 border-l-[4px] border-l-fuchsia-500 font-medium">Izin (L)</td><td class="py-2 px-4 text-center font-bold">${s.il}</td></tr>
                                 <tr><td class="py-2 px-4 border-l-[4px] border-l-red-500 font-medium">Alpha</td><td class="py-2 px-4 text-center font-bold text-red-600">${s.a}</td></tr>
                             </tbody></table></div>`;
 
                 if (attendanceChartInstance) attendanceChartInstance.destroy();
                 if (tot === 0) return tbl.innerHTML += `<p class="text-center text-gray-500 mt-4 font-medium">Belum ada data mengajar yang tercatat.</p>`;
                 
-                attendanceChartInstance = new Chart(document.getElementById('attendanceChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Hadir', 'Telat', 'Sakit', 'Izin', 'Alpha'], datasets: [{ data: [s.h, s.t, s.skt, s.i, s.a], backgroundColor: ['#10b981', '#fbbf24', '#3b82f6', '#8b5cf6', '#ef4444'], borderWidth: 2, hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+                attendanceChartInstance = new Chart(document.getElementById('attendanceChart').getContext('2d'), { 
+                    type: 'doughnut', 
+                    data: { 
+                        labels: ['Hadir', 'Telat', 'Sakit', 'Izin (D)', 'Izin (L)', 'Alpha'], 
+                        datasets: [{ 
+                            data: [s.h, s.t, s.skt, s.id, s.il, s.a], 
+                            backgroundColor: ['#10b981', '#fbbf24', '#3b82f6', '#8b5cf6', '#d946ef', '#ef4444'], 
+                            borderWidth: 2, hoverOffset: 4 
+                        }] 
+                    }, 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } 
+                });
             } catch (e) { showNotification("Gagal: " + e.message); } finally { showLoading(false); }
         }
 
@@ -1912,4 +1956,3 @@
     </script>
 </body>
 </html>
-```
