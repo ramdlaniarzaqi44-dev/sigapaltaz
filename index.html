@@ -227,6 +227,38 @@
                             <div class="flex justify-center items-center h-48 text-gray-400">Memuat jadwal...</div>
                         </div>
 
+                        <!-- Ekstrakurikuler (Opsional) -->
+                        <div class="mt-6 bg-white p-4 md:p-5 rounded-lg border border-gray-200 shadow-sm">
+                            <h3 class="text-sm font-bold text-gray-800 mb-3 border-b pb-2 text-indigo-900">Data Ekstrakurikuler (Opsional)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="ekskul-inputs">
+                                <div class="flex gap-2 items-center">
+                                    <span class="text-xs font-bold text-gray-400 w-4">1.</span>
+                                    <input type="text" id="ekskul-name-1" class="flex-grow px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm" placeholder="Nama Ekskul">
+                                    <select id="ekskul-status-1" class="w-32 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm font-semibold"><option value="-">-</option><option value="Hadir">Hadir</option><option value="Tidak Hadir">Tidak Hadir</option></select>
+                                </div>
+                                <div class="flex gap-2 items-center">
+                                    <span class="text-xs font-bold text-gray-400 w-4">2.</span>
+                                    <input type="text" id="ekskul-name-2" class="flex-grow px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm" placeholder="Nama Ekskul">
+                                    <select id="ekskul-status-2" class="w-32 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm font-semibold"><option value="-">-</option><option value="Hadir">Hadir</option><option value="Tidak Hadir">Tidak Hadir</option></select>
+                                </div>
+                                <div class="flex gap-2 items-center">
+                                    <span class="text-xs font-bold text-gray-400 w-4">3.</span>
+                                    <input type="text" id="ekskul-name-3" class="flex-grow px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm" placeholder="Nama Ekskul">
+                                    <select id="ekskul-status-3" class="w-32 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm font-semibold"><option value="-">-</option><option value="Hadir">Hadir</option><option value="Tidak Hadir">Tidak Hadir</option></select>
+                                </div>
+                                <div class="flex gap-2 items-center">
+                                    <span class="text-xs font-bold text-gray-400 w-4">4.</span>
+                                    <input type="text" id="ekskul-name-4" class="flex-grow px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm" placeholder="Nama Ekskul">
+                                    <select id="ekskul-status-4" class="w-32 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm font-semibold"><option value="-">-</option><option value="Hadir">Hadir</option><option value="Tidak Hadir">Tidak Hadir</option></select>
+                                </div>
+                                <div class="flex gap-2 items-center">
+                                    <span class="text-xs font-bold text-gray-400 w-4">5.</span>
+                                    <input type="text" id="ekskul-name-5" class="flex-grow px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm" placeholder="Nama Ekskul">
+                                    <select id="ekskul-status-5" class="w-32 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 bg-white text-sm font-semibold"><option value="-">-</option><option value="Hadir">Hadir</option><option value="Tidak Hadir">Tidak Hadir</option></select>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mt-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
                             <button onclick="markAllPresent()" class="w-full md:w-auto bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 font-bold py-2 px-6 rounded-lg shadow-sm transition duration-200 flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -967,7 +999,7 @@
                     const batches = []; let currentBatch = db.batch(); let count = 0;
                     
                     oldSnap.forEach(doc => { currentBatch.delete(doc.ref); count++; if(count===490){batches.push(currentBatch); currentBatch=db.batch(); count=0;} });
-                    json.forEach(row => {
+                    json.forEach(                        row => {
                         if(row['Kategori'] && row['Kelas'] && row['Nama Siswa']) {
                             currentBatch.set(db.collection('students').doc(), { category: String(row['Kategori']).trim(), className: String(row['Kelas']).trim(), name: String(row['Nama Siswa']).trim() });
                             count++; if(count===490){batches.push(currentBatch); currentBatch=db.batch(); count=0;}
@@ -1032,6 +1064,7 @@
             
             checkManualPicket();
             populateAttendanceForm();
+            loadEkskulData();
         }
 
         function populateAttendanceForm() {
@@ -1062,6 +1095,31 @@
             container.innerHTML = html + `</tbody></table>`;
         }
 
+        async function loadEkskulData() {
+            const date = document.getElementById('attendance-date').value;
+            const loc = document.getElementById('picket-location').value;
+            for(let i=1; i<=5; i++){
+                document.getElementById(`ekskul-name-${i}`).value = '';
+                document.getElementById(`ekskul-status-${i}`).value = '-';
+            }
+            if(!date) return;
+            try {
+                const snap = await db.collection('attendance').where('date', '==', date).limit(1).get();
+                if (!snap.empty) {
+                    const data = snap.docs[0].data();
+                    const ekData = loc === 'Putra' ? data.ekskulPutra : data.ekskulPutri;
+                    if(ekData && Array.isArray(ekData)) {
+                        ekData.forEach((ek, i) => {
+                            if(i < 5) {
+                                document.getElementById(`ekskul-name-${i+1}`).value = ek.name || '';
+                                document.getElementById(`ekskul-status-${i+1}`).value = ek.status || '-';
+                            }
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+
         function markRowPresent(btn) { btn.closest('tr').querySelectorAll('select').forEach(s => { s.value = 'Hadir'; updateSelectColor(s); }); }
         function markAllPresent() { document.querySelectorAll('#attendance-table select').forEach(s => { s.value = 'Hadir'; updateSelectColor(s); }); }
         function updateSelectColor(sel) {
@@ -1079,6 +1137,8 @@
             if (!date || !pName) return showNotification('Peringatan: Kolom Tanggal dan Guru Piket wajib diisi!');
             
             const rows = document.querySelectorAll('#attendance-table tbody tr');
+            if(rows.length === 0) return showNotification('Tidak ada tabel absen.');
+
             for (const row of rows) { for (let i = 1; i <= 9; i++) { const sel = row.querySelector(`select[name="jam${i}"]`); if (sel && sel.value === '-') return showNotification(`Data belum lengkap! Harap isi status kehadiran untuk ${row.cells[0].textContent} pada Jam ke-${i}.`); } }
 
             const recs = Array.from(rows).map(row => {
@@ -1088,15 +1148,24 @@
                 return rec;
             });
             
+            let ekskuls = [];
+            for(let i=1; i<=5; i++){
+                const name = document.getElementById(`ekskul-name-${i}`).value.trim();
+                const status = document.getElementById(`ekskul-status-${i}`).value;
+                if(name) { ekskuls.push({ name, status }); }
+            }
+
             showLoading(true);
             try {
                 const snap = await db.collection('attendance').where('date', '==', date).limit(1).get();
-                if (snap.empty) { await db.collection('attendance').add({ date, day, picketPutra: pLoc === 'Putra' ? pName : null, picketPutri: pLoc === 'Putri' ? pName : null, records: recs, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } 
+                if (snap.empty) { 
+                    await db.collection('attendance').add({ date, day, picketPutra: pLoc === 'Putra' ? pName : null, picketPutri: pLoc === 'Putri' ? pName : null, ekskulPutra: pLoc === 'Putra' ? ekskuls : [], ekskulPutri: pLoc === 'Putri' ? ekskuls : [], records: recs, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); 
+                } 
                 else {
-                    const exist = snap.docs[0].data(); const upData = { [pLoc === 'Putra' ? 'picketPutra' : 'picketPutri']: pName }; const newNames = recs.map(r => r.teacherName);
+                    const exist = snap.docs[0].data(); const upData = { [pLoc === 'Putra' ? 'picketPutra' : 'picketPutri']: pName, [pLoc === 'Putra' ? 'ekskulPutra' : 'ekskulPutri']: ekskuls }; const newNames = recs.map(r => r.teacherName);
                     upData.records = [...(exist.records||[]).filter(r => !newNames.includes(r.teacherName)), ...recs]; await snap.docs[0].ref.update(upData);
                 }
-                showNotification("Sukses! Data absensi guru berhasil disimpan.");
+                showNotification("Sukses! Data absensi guru dan ekskul berhasil disimpan.");
             } catch (e) { showNotification("Gagal menyimpan ke server: " + e.message); } finally { showLoading(false); }
         }
 
@@ -1298,7 +1367,6 @@
                             text += `Nihil\n`;
                         }
                         
-                        // Sembunyikan piket jika nilainya '-' atau kosong
                         if (data.piketKelas && data.piketKelas !== '-') {
                             let pktKelasIcon = data.piketKelas === 'Piket' ? 'Piket ✅' : (data.piketKelas === 'Tidak' ? 'Tidak ❌' : data.piketKelas);
                             text += `Piket Kelas: ${pktKelasIcon}\n`;
@@ -1341,11 +1409,9 @@
                                     } 
                                 }
                                 
-                                // Abaikan guru jika jam DAN pembiasaan tidak ada input valid
                                 if(hoursInfo.length === 0 && (!r.morningHabit || r.morningHabit === '-')) return; 
                                 
                                 let habitStr = '';
-                                // Hanya render kata Pembiasaan jika nilainya bukan '-'
                                 if (r.morningHabit && r.morningHabit !== '-') {
                                     let hIcon = '✅';
                                     if (r.morningHabit === 'Telat') hIcon = '⏱️';
@@ -1394,13 +1460,24 @@
                                 
                                 let finalLine = `${idx}. ${r.teacherName} - ${habitStr}${jamTeks}`;
                                 if (finalLine.endsWith(', ')) finalLine = finalLine.slice(0, -2);
-                                if (finalLine.endsWith(' - ')) return; // skip jika ternyata kosong melompong (edge case tambahan)
+                                if (finalLine.endsWith(' - ')) return;
                                 
                                 text += `${finalLine}\n`;
                                 idx++;
                             });
                         }
                     } else { text += `Belum ada rekapan guru.\n`; }
+                    
+                    // Tambahkan Ekskul
+                    const ekData = cat === 'Putra' ? tData.ekskulPutra : tData.ekskulPutri;
+                    if (ekData && Array.isArray(ekData) && ekData.length > 0) {
+                        text += `\n*Ekstrakurikuler:*\n`;
+                        ekData.forEach((ek, eIdx) => {
+                            let icon = ek.status === 'Hadir' ? '✅' : (ek.status === 'Tidak Hadir' ? '❌' : '');
+                            text += `${eIdx+1}. ${ek.name} - ${ek.status} ${icon}\n`;
+                        });
+                    }
+
                 }
                 document.getElementById('wa-message-preview').value = text;
             } catch (e) { showNotification("Gagal memuat rekapan: " + e.message); } finally { showLoading(false); }
@@ -1610,11 +1687,21 @@
         function displayReport(dRec) {
             const container = document.getElementById('report-results');
             if (dRec.length === 0) { container.innerHTML = `<div class="p-8 text-center bg-gray-50 rounded-lg text-gray-500 font-medium">Tidak ada rekaman data absensi pada periode ini.</div>`; return; }
-            const pSum = {}, aSum = {};
+            const pSum = {}, aSum = {}, eSum = {};
             dRec.forEach(data => {
                 const fDate = new Date(data.date).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
                 if(data.picketPutra) { if(!pSum[data.picketPutra]) pSum[data.picketPutra]={Pa:[],Pi:[]}; pSum[data.picketPutra].Pa.push(fDate); }
                 if(data.picketPutri) { if(!pSum[data.picketPutri]) pSum[data.picketPutri]={Pa:[],Pi:[]}; pSum[data.picketPutri].Pi.push(fDate); }
+                
+                (data.ekskulPutra || []).forEach(e => {
+                    if(!eSum[e.name]) eSum[e.name] = { Hadir:0, TidakHadir:0 };
+                    if(e.status === 'Hadir') eSum[e.name].Hadir++; else if(e.status === 'Tidak Hadir') eSum[e.name].TidakHadir++;
+                });
+                (data.ekskulPutri || []).forEach(e => {
+                    if(!eSum[e.name]) eSum[e.name] = { Hadir:0, TidakHadir:0 };
+                    if(e.status === 'Hadir') eSum[e.name].Hadir++; else if(e.status === 'Tidak Hadir') eSum[e.name].TidakHadir++;
+                });
+
                 (data.records||[]).forEach(rec => {
                     if (!aSum[rec.teacherName]) aSum[rec.teacherName] = { pgH:0, pgT:0, pgX:0, jamH:0, jamT:0, jamS:0, jamID:0, jamIL:0, jamA:0, totalJadwal:0, notes:new Set() };
                     const ts = aSum[rec.teacherName];
@@ -1640,7 +1727,7 @@
             else { Object.keys(pSum).sort().forEach(n => { const pa = pSum[n].Pa, pi = pSum[n].Pi; html += `<tr class="hover:bg-slate-50"><td class="py-2 px-4 font-medium">${n}</td><td class="py-2 px-4 text-center">${pa.length>0 ? `<span class="font-bold text-blue-600">${pa.length}x</span> <span class="text-xs text-gray-400">(${pa.join(', ')})</span>` : '-'}</td><td class="py-2 px-4 text-center">${pi.length>0 ? `<span class="font-bold text-blue-600">${pi.length}x</span> <span class="text-xs text-gray-400">(${pi.join(', ')})</span>` : '-'}</td></tr>`; }); }
             html += `</tbody></table></div></div>`;
 
-            html += `<div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm"><div class="bg-blue-50 p-3 border-b"><h3 class="font-bold text-blue-900">Rekapitulasi Absensi Mengajar</h3></div><div class="p-0 overflow-x-auto"><table class="min-w-max w-full text-xs text-center"><thead class="bg-gray-50">
+            html += `<div class="mb-8 border border-gray-200 rounded-lg overflow-hidden shadow-sm"><div class="bg-blue-50 p-3 border-b"><h3 class="font-bold text-blue-900">Rekapitulasi Absensi Mengajar</h3></div><div class="p-0 overflow-x-auto"><table class="min-w-max w-full text-xs text-center"><thead class="bg-gray-50">
                 <tr><th rowspan="2" class="p-3 border-r border-b text-left font-bold text-gray-700 bg-gray-50 sticky left-0 z-10">Nama Guru</th><th rowspan="2" class="p-2 border-r border-b font-bold text-gray-700 bg-gray-100">Total<br>Jadwal</th>
                 <th colspan="3" class="p-2 border-r border-b font-bold text-gray-700 bg-indigo-50">Pembiasaan Pagi (Hari)</th><th colspan="7" class="p-2 border-b border-r font-bold text-gray-700 bg-amber-50">Jam Pelajaran (JP)</th><th rowspan="2" class="p-2 border-b font-bold text-gray-700 w-48">Catatan Khusus</th></tr>
                 <tr><th class="p-2 border-r border-b text-green-700 font-semibold bg-indigo-50/50">Hadir</th><th class="p-2 border-r border-b text-yellow-600 font-semibold bg-indigo-50/50">Telat</th><th class="p-2 border-r border-b text-red-500 font-semibold bg-indigo-50/50">Alpha</th><th class="p-2 border-r border-b text-green-700 font-bold bg-green-50">Hadir</th><th class="p-2 border-r border-b text-yellow-600 font-bold bg-amber-50/50">Telat</th><th class="p-2 border-r border-b text-blue-600 font-bold bg-blue-50">Sakit</th><th class="p-2 border-r border-b text-purple-600 font-bold bg-purple-50">Izin (D)</th><th class="p-2 border-r border-b text-fuchsia-600 font-bold bg-purple-50">Izin (L)</th><th class="p-2 border-b border-r text-red-600 font-bold bg-red-50">Alpha</th><th class="p-2 border-b border-r text-gray-700 font-bold bg-gray-100">Total Hadir</th></tr></thead><tbody class="divide-y">`;
@@ -1649,7 +1736,18 @@
                 const s = aSum[t]; const totHadirJP = s.jamH + s.jamT; const nList = Array.from(s.notes).join('; ');
                 html += `<tr class="hover:bg-gray-50"><td class="p-3 border-r text-left font-semibold text-gray-800 bg-white sticky left-0 z-10">${t}</td><td class="p-2 border-r font-bold bg-gray-50">${s.totalJadwal}</td><td class="p-2 border-r">${s.pgH}</td><td class="p-2 border-r">${s.pgT}</td><td class="p-2 border-r">${s.pgX}</td><td class="p-2 border-r bg-green-50/30">${s.jamH}</td><td class="p-2 border-r">${s.jamT}</td><td class="p-2 border-r">${s.jamS}</td><td class="p-2 border-r">${s.jamID}</td><td class="p-2 border-r">${s.jamIL}</td><td class="p-2 border-r text-red-500">${s.jamA}</td><td class="p-2 border-r font-bold text-green-700 bg-green-50">${totHadirJP}</td><td class="p-2 text-left text-gray-500 italic max-w-[200px] truncate" title="${nList}">${nList || '-'}</td></tr>`;
             });
-            container.innerHTML = html + `</tbody></table></div></div>`;
+            html += `</tbody></table></div></div>`;
+
+            if(Object.keys(eSum).length > 0) {
+                html += `<div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm"><div class="bg-indigo-50 p-3 border-b"><h3 class="font-bold text-indigo-900">Rekapitulasi Ekstrakurikuler</h3></div><div class="p-0 overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-gray-50 border-b"><tr><th class="py-2 px-4 font-semibold text-gray-700 w-1/2">Nama Ekskul</th><th class="py-2 px-4 font-semibold text-gray-700 text-center">Hadir</th><th class="py-2 px-4 font-semibold text-gray-700 text-center">Tidak Hadir</th></tr></thead><tbody class="divide-y">`;
+                Object.keys(eSum).sort().forEach(n => {
+                    const s = eSum[n];
+                    html += `<tr class="hover:bg-indigo-50/30"><td class="py-2 px-4 font-medium">${n}</td><td class="py-2 px-4 text-center text-green-600 font-bold">${s.Hadir}</td><td class="py-2 px-4 text-center text-red-600 font-bold">${s.TidakHadir}</td></tr>`;
+                });
+                html += `</tbody></table></div></div>`;
+            }
+
+            container.innerHTML = html;
         }
 
         function downloadPDF() {
@@ -1658,11 +1756,21 @@
             const y = document.getElementById('report-year').value; const m = monthNames[document.getElementById('report-month').value - 1];
             doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.text("LAPORAN ABSENSI GURU - SMAS AL-MULTAZAM", 148, 15, { align: 'center' }); doc.setFontSize(11); doc.setFont("helvetica", "normal"); doc.text(`Periode: Bulan ${m} Tahun ${y}`, 148, 22, { align: 'center' });
             
-            const pSum = {}, aSum = {};
+            const pSum = {}, aSum = {}, eSum = {};
             currentReportData.forEach(d => {
                 const fd = new Date(d.date).toLocaleDateString('id-ID', {day:'numeric'});
                 if(d.picketPutra) { if(!pSum[d.picketPutra]) pSum[d.picketPutra]={Pa:[],Pi:[]}; pSum[d.picketPutra].Pa.push(fd); }
                 if(d.picketPutri) { if(!pSum[d.picketPutri]) pSum[d.picketPutri]={Pa:[],Pi:[]}; pSum[d.picketPutri].Pi.push(fd); }
+                
+                (d.ekskulPutra || []).forEach(e => {
+                    if(!eSum[e.name]) eSum[e.name] = { Hadir:0, TidakHadir:0 };
+                    if(e.status === 'Hadir') eSum[e.name].Hadir++; else if(e.status === 'Tidak Hadir') eSum[e.name].TidakHadir++;
+                });
+                (d.ekskulPutri || []).forEach(e => {
+                    if(!eSum[e.name]) eSum[e.name] = { Hadir:0, TidakHadir:0 };
+                    if(e.status === 'Hadir') eSum[e.name].Hadir++; else if(e.status === 'Tidak Hadir') eSum[e.name].TidakHadir++;
+                });
+
                 (d.records||[]).forEach(r => {
                     if (!aSum[r.teacherName]) aSum[r.teacherName] = { pgH:0, pgT:0, pgX:0, jamH:0, jamT:0, jamS:0, jamID:0, jamIL:0, jamA:0, totJ:0, n:new Set() };
                     const ts = aSum[r.teacherName];
@@ -1686,6 +1794,7 @@
             let currentY = 32; doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("1. Rekap Guru Piket", 14, currentY);
             const pktBody = []; Object.keys(pSum).sort().forEach(n => { const s = pSum[n]; if(s.Pa.length>0) pktBody.push([n, 'Putra', `${s.Pa.length} Kali`, `Tgl: ${s.Pa.join(', ')}`]); if(s.Pi.length>0) pktBody.push([n, 'Putri', `${s.Pi.length} Kali`, `Tgl: ${s.Pi.join(', ')}`]); });
             doc.autoTable({ startY: currentY + 4, head: [['Nama Guru Piket', 'Tugas', 'Jumlah', 'Rincian Tanggal']], body: pktBody, theme: 'grid', headStyles: { fillColor: [51, 65, 85] }, styles: { fontSize: 9 } });
+            
             currentY = doc.lastAutoTable.finalY + 15; if(currentY > 170) { doc.addPage(); currentY = 20; }
             doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("2. Rekap Absensi Mengajar", 14, currentY);
             
@@ -1695,6 +1804,17 @@
             ];
             const bdy = Object.keys(aSum).sort().map(t => { const s = aSum[t]; return [t, s.totJ, (s.jamH+s.jamT), s.pgH, s.pgT, s.pgX, s.jamH, s.jamT, s.jamS, s.jamID, s.jamIL, s.jamA, Array.from(s.n).join('; ')]; });
             doc.autoTable({ startY: currentY + 4, head: head, body: bdy, theme: 'grid', headStyles: { fillColor: [37, 99, 235], halign: 'center' }, styles: { fontSize: 8, cellPadding: 1.5 }, columnStyles: { 0: {cellWidth: 45}, 12: {cellWidth: 40} } });
+            
+            if(Object.keys(eSum).length > 0) {
+                currentY = doc.lastAutoTable.finalY + 15; if(currentY > 170) { doc.addPage(); currentY = 20; }
+                doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("3. Rekap Ekstrakurikuler", 14, currentY);
+                const eksBody = [];
+                Object.keys(eSum).sort().forEach(n => {
+                    eksBody.push([n, eSum[n].Hadir, eSum[n].TidakHadir]);
+                });
+                doc.autoTable({ startY: currentY + 4, head: [['Nama Ekstrakurikuler', 'Hadir', 'Tidak Hadir']], body: eksBody, theme: 'grid', headStyles: { fillColor: [79, 70, 229] }, styles: { fontSize: 9, halign: 'center' }, columnStyles: { 0: {halign: 'left'} } });
+            }
+
             doc.save(`Laporan_SIGAP_${m}_${y}.pdf`);
         }
 
