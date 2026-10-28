@@ -357,15 +357,15 @@
                     </div>
                 </div>
 
-                <!-- MENU 3: DATA & JADWAL -->
+                <!-- MENU 3: DATA & JADWAL (DITAMBAHKAN FITUR GANTI NAMA MASSAL) -->
                 <div id="jadwal" class="hidden space-y-6 fade-in">
                      <div class="bg-white p-5 md:p-6 rounded-xl shadow border border-gray-100">
-                        <!-- Panel Import Data via Excel -->
+                        <!-- Panel Manajemen Data -->
                         <div class="mb-8 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm">
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
                                 <div>
                                     <h3 class="text-xl font-bold text-blue-900">Manajemen Data & Jadwal</h3>
-                                    <p class="text-sm text-blue-700">Perbarui database jadwal, guru piket, dan data siswa beserta kelasnya.</p>
+                                    <p class="text-sm text-blue-700">Perbarui database jadwal, guru piket, data siswa, serta perbaikan nama riwayat.</p>
                                 </div>
                                 <button onclick="showPasswordModal('import')" class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold py-2 px-5 rounded-lg shadow flex items-center gap-2 whitespace-nowrap">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -375,56 +375,71 @@
                             
                             <div id="import-panel" class="hidden mt-6 pt-6 border-t border-blue-200/60">
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <!-- Import Jadwal -->
-                                    <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <!-- 1. Import Jadwal -->
+                                    <div class="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
                                         <div>
-                                            <h4 class="font-bold text-gray-800 text-lg mb-1">1. Update Jadwal Mengajar</h4>
+                                            <h4 class="font-bold text-gray-800 text-base mb-1">1. Update Jadwal Mengajar</h4>
                                             <p class="text-xs text-gray-500 mb-4">Mengganti semua jadwal jam mengajar guru via Excel.</p>
                                         </div>
-                                        <div class="flex flex-col space-y-3">
-                                            <button onclick="downloadTemplateJadwalExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
-                                                Download Template Excel
+                                        <div class="flex flex-col space-y-2">
+                                            <button onclick="downloadTemplateJadwalExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
+                                                Download Template
                                             </button>
                                             <input type="file" id="file-jadwal" accept=".xlsx, .xls" class="hidden" onchange="handleImportJadwalExcel(event)">
-                                            <button onclick="document.getElementById('file-jadwal').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
-                                                Upload Excel Jadwal
+                                            <button onclick="document.getElementById('file-jadwal').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center justify-center gap-2 transition">
+                                                Upload Excel
                                             </button>
                                         </div>
                                     </div>
                                     
-                                    <!-- Import Piket -->
-                                    <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
+                                    <!-- 2. Import Piket -->
+                                    <div class="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
                                         <div>
-                                            <h4 class="font-bold text-gray-800 text-lg mb-1">2. Update Data Guru Piket</h4>
+                                            <h4 class="font-bold text-gray-800 text-base mb-1">2. Update Data Guru Piket</h4>
                                             <p class="text-xs text-gray-500 mb-4">Mengatur guru piket harian putra & putri.</p>
                                         </div>
-                                        <div class="flex flex-col space-y-3">
-                                            <button onclick="downloadTemplatePiketExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
-                                                Download Template Excel
+                                        <div class="flex flex-col space-y-2">
+                                            <button onclick="downloadTemplatePiketExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
+                                                Download Template
                                             </button>
                                             <input type="file" id="file-piket" accept=".xlsx, .xls" class="hidden" onchange="handleImportPiketExcel(event)">
-                                            <button onclick="document.getElementById('file-piket').click()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
-                                                Upload Excel Piket
+                                            <button onclick="document.getElementById('file-piket').click()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center justify-center gap-2 transition">
+                                                Upload Excel
                                             </button>
                                         </div>
                                     </div>
 
-                                    <!-- Import Siswa -->
-                                    <div class="p-5 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
+                                    <!-- 3. Import Siswa -->
+                                    <div class="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
                                         <div>
-                                            <h4 class="font-bold text-gray-800 text-lg mb-1">3. Update Data Siswa & Kelas</h4>
+                                            <h4 class="font-bold text-gray-800 text-base mb-1">3. Update Data Siswa & Kelas</h4>
                                             <p class="text-xs text-gray-500 mb-4">Menambah/mengubah daftar siswa dan kelas.</p>
                                         </div>
-                                        <div class="flex flex-col space-y-3">
-                                            <button onclick="downloadTemplateSiswaExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
-                                                Download Template Excel
+                                        <div class="flex flex-col space-y-2">
+                                            <button onclick="downloadTemplateSiswaExcel()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded border border-slate-300 flex items-center justify-center gap-2 transition">
+                                                Download Template
                                             </button>
                                             <input type="file" id="file-siswa" accept=".xlsx, .xls" class="hidden" onchange="handleImportSiswaExcel(event)">
-                                            <button onclick="document.getElementById('file-siswa').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded shadow-sm flex items-center justify-center gap-2 transition">
-                                                Upload Excel Siswa
+                                            <button onclick="document.getElementById('file-siswa').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center justify-center gap-2 transition">
+                                                Upload Excel
                                             </button>
                                         </div>
+                                    </div>
+
+                                    <!-- 4. Fitur Baru: Perbaiki Nama Guru di Database -->
+                                    <div class="p-4 bg-white rounded-lg border border-purple-200 shadow-sm flex flex-col justify-between bg-gradient-to-b from-white to-purple-50/40">
+                                        <div>
+                                            <h4 class="font-bold text-purple-900 text-base mb-1 flex items-center gap-1.5">
+                                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                4. Perbaiki Nama Guru
+                                            </h4>
+                                            <p class="text-xs text-gray-500 mb-4">Ubah nama typo/salah ke nama baru di seluruh arsip riwayat tanpa menghapus data.</p>
+                                        </div>
+                                        <button onclick="openRenameTeacherModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-3 px-3 rounded shadow-sm flex items-center justify-center gap-1.5 transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                            Ganti Nama di Riwayat
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -805,6 +820,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Perbaiki / Ganti Nama Guru di Database (BARU) -->
+    <div id="modal-rename-teacher" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-11/12 md:w-[500px]">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-lg font-bold text-purple-900 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Perbaiki Nama Guru di Riwayat
+                </h3>
+                <button onclick="closeRenameTeacherModal()" class="text-gray-400 hover:text-gray-500"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+
+            <p class="text-xs text-gray-600 mb-4 bg-purple-50 p-3 rounded-lg border border-purple-100 leading-relaxed">
+                Fitur ini akan mencari seluruh riwayat kehadiran tanggal-tanggal lampau (jadwal, presensi jam mengajar, pembiasaan, dan petugas piket) yang tercatat dengan nama lama, lalu <b>menggantinya ke nama baru</b> secara otomatis tanpa menghapus data absensi.
+            </p>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">1. Nama Lama (Yang Salah/Typo)</label>
+                    <select id="rename-old-name-select" onchange="document.getElementById('rename-old-name').value = this.value" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 mb-2 focus:ring-purple-500">
+                        <option value="">-- Pilih dari daftar nama yang ada --</option>
+                    </select>
+                    <input type="text" id="rename-old-name" placeholder="Atau ketik nama lama yang salah di sini..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">2. Nama Baru (Yang Benar)</label>
+                    <input type="text" id="rename-new-name" placeholder="Ketik nama baru yang benar..." class="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm font-semibold text-purple-900 bg-purple-50/30 focus:ring-2 focus:ring-purple-500 outline-none">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-3 border-t border-gray-100">
+                <button onclick="closeRenameTeacherModal()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 px-4 rounded-lg shadow-sm text-sm transition">Batal</button>
+                <button onclick="processRenameTeacher()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm text-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Perbarui Seluruh Data
+                </button>
+            </div>
+        </div>
+    </div>
     
     <!-- Overlay Loading -->
     <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center hidden z-[100]">
@@ -1131,6 +1186,162 @@
                     populateChartStudentClasses();
                 } catch(err) { showNotification("Gagal membaca Excel Siswa: " + err.message); } finally { showLoading(false); }
             }; reader.readAsArrayBuffer(file);
+        }
+
+        // ================= FITUR GANTI / PERBAIKI NAMA GURU MASSAL =================
+        function openRenameTeacherModal() {
+            const sel = document.getElementById('rename-old-name-select');
+            sel.innerHTML = '<option value="">-- Pilih dari daftar nama yang ada --</option>';
+            
+            // Mengambil semua nama guru yang dikenal di sistem
+            const allKnown = new Set();
+            days.forEach(d => {
+                categories.forEach(c => {
+                    (schedulesData[d] && schedulesData[d][c] ? schedulesData[d][c] : []).forEach(t => allKnown.add(t.name));
+                });
+            });
+            Object.values(picketSchedule).forEach(p => {
+                if (p.Putra && p.Putra !== '-' && p.Putra !== 'LIBUR') allKnown.add(p.Putra);
+                if (p.Putri && p.Putri !== '-' && p.Putri !== 'LIBUR') allKnown.add(p.Putri);
+            });
+
+            Array.from(allKnown).sort().forEach(n => {
+                sel.options.add(new Option(n, n));
+            });
+
+            document.getElementById('rename-old-name').value = '';
+            document.getElementById('rename-new-name').value = '';
+            document.getElementById('modal-rename-teacher').classList.remove('hidden');
+        }
+
+        function closeRenameTeacherModal() {
+            document.getElementById('modal-rename-teacher').classList.add('hidden');
+        }
+
+        async function processRenameTeacher() {
+            const oldName = document.getElementById('rename-old-name').value.trim();
+            const newName = document.getElementById('rename-new-name').value.trim();
+
+            if (!oldName || !newName) {
+                return showNotification("Nama Lama dan Nama Baru wajib diisi!");
+            }
+            if (oldName === newName) {
+                return showNotification("Nama Lama dan Nama Baru tidak boleh sama persis!");
+            }
+
+            if (!confirm(`Apakah Anda yakin ingin mengganti nama:\n"${oldName}"\nmenjadi:\n"${newName}"\ndi seluruh arsip riwayat absensi dan jadwal database?`)) {
+                return;
+            }
+
+            closeRenameTeacherModal();
+            showLoading(true);
+
+            try {
+                let batches = [];
+                let currentBatch = db.batch();
+                let opCount = 0;
+
+                const addToBatch = (ref, updateData) => {
+                    currentBatch.update(ref, updateData);
+                    opCount++;
+                    if (opCount === 480) {
+                        batches.push(currentBatch);
+                        currentBatch = db.batch();
+                        opCount = 0;
+                    }
+                };
+
+                let updatedAttendanceDocs = 0;
+                let updatedScheduleDocs = 0;
+                let updatedPicketDocs = 0;
+
+                // 1. Perbarui seluruh data kehadiran di riwayat `attendance`
+                const attSnap = await db.collection('attendance').get();
+                attSnap.forEach(doc => {
+                    const data = doc.data();
+                    let needUpdate = false;
+                    let updatePayload = {};
+
+                    // Cek Petugas Piket Putra & Putri
+                    if (data.picketPutra === oldName) {
+                        updatePayload.picketPutra = newName;
+                        needUpdate = true;
+                    }
+                    if (data.picketPutri === oldName) {
+                        updatePayload.picketPutri = newName;
+                        needUpdate = true;
+                    }
+
+                    // Cek riwayat kehadiran mengajar guru
+                    if (data.records && Array.isArray(data.records)) {
+                        let recordsModified = false;
+                        const newRecords = data.records.map(r => {
+                            if (r.teacherName === oldName) {
+                                recordsModified = true;
+                                return { ...r, teacherName: newName };
+                            }
+                            return r;
+                        });
+                        if (recordsModified) {
+                            updatePayload.records = newRecords;
+                            needUpdate = true;
+                        }
+                    }
+
+                    if (needUpdate) {
+                        addToBatch(doc.ref, updatePayload);
+                        updatedAttendanceDocs++;
+                    }
+                });
+
+                // 2. Perbarui nama di jadwal mengajar `schedules`
+                const schSnap = await db.collection('schedules').where('name', '==', oldName).get();
+                schSnap.forEach(doc => {
+                    addToBatch(doc.ref, { name: newName });
+                    updatedScheduleDocs++;
+                });
+
+                // 3. Perbarui nama di jadwal piket server `picket_schedules`
+                const pktSnap = await db.collection('picket_schedules').get();
+                pktSnap.forEach(doc => {
+                    const data = doc.data();
+                    let pktUpdate = {};
+                    let needPktUpdate = false;
+
+                    if (data.Putra === oldName) { pktUpdate.Putra = newName; needPktUpdate = true; }
+                    if (data.Putri === oldName) { pktUpdate.Putri = newName; needPktUpdate = true; }
+
+                    if (needPktUpdate) {
+                        addToBatch(doc.ref, pktUpdate);
+                        updatedPicketDocs++;
+                    }
+                });
+
+                // Commit seluruh perubahan
+                if (opCount > 0) batches.push(currentBatch);
+                for (let b of batches) {
+                    await b.commit();
+                }
+
+                // Refresh state lokal
+                await Promise.all([fetchSchedules(), fetchPicketSchedule()]);
+                updateDayFromDate();
+
+                showNotification(
+                    `Sukses Memperbarui Nama Guru!\n\n` +
+                    `Nama "${oldName}" berhasil diganti menjadi "${newName}".\n` +
+                    `• Diperbarui pada ${updatedAttendanceDocs} dokumen riwayat absensi.\n` +
+                    `• Diperbarui pada ${updatedScheduleDocs} slot jadwal mengajar.\n` +
+                    `• Diperbarui pada ${updatedPicketDocs} jadwal piket harian.\n\n` +
+                    `Seluruh riwayat presensi lampau tetap utuh dan tersambung otomatis!`
+                );
+
+            } catch (err) {
+                console.error("Gagal rename teacher:", err);
+                showNotification("Gagal memperbarui nama di database: " + err.message);
+            } finally {
+                showLoading(false);
+            }
         }
 
         // ================= ABSENSI GURU LOGIC =================
